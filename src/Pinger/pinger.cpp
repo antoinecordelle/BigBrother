@@ -2,35 +2,31 @@
 
 #include <iostream>
 #include <stdio.h>
-#include <unistd.h>
-#include <stdio.h>
 
 using namespace std;
 
-Pinger::Pinger(std::string name, int interval)
+Pinger::Pinger(std::string name)
     :mCommand("ping -c 1 -W 1 " + name)
-    ,mInterval(interval)
 {
 }
 
-int Pinger::ping()
+string Pinger::ping()
 {
     char buffer [100];
-    FILE* file;
+    FILE* pingRequest;
+    string response;
 
-    file = popen(mCommand.c_str(), "r");
+    pingRequest = popen(mCommand.c_str(), "r");
 
-    sleep(mInterval);
-    if (file == NULL) perror ("Error opening file");
+    if (pingRequest == NULL) perror ("Error sending request");
     else
         {
-        while ( ! feof(file) )
+        while ( ! feof(pingRequest) )
         {
-            if ( fgets (buffer , 100 , file) == NULL ) break;
-                fputs (buffer , stdout);
+            if ( fgets (buffer , 100 , pingRequest) == NULL ) break;
+                response = response  + buffer + "|";
         }
-        fclose (file);
+        fclose (pingRequest);
     }
-    cout << buffer << endl << endl;
-    return 0;
+    return response;
 }

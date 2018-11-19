@@ -7,13 +7,13 @@
 class Pinger
 {
 public:
-    Pinger(std::string name, int interval);
-    int ping();
+    Pinger(std::string name);
+
+    std::string ping();
 
 
 private:
     std::string mCommand;
-    int mInterval;
 };
 
 #endif // PINGER_H
