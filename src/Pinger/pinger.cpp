@@ -6,7 +6,7 @@
 using namespace std;
 
 Pinger::Pinger(std::string name)
-    :mCommand("ping -c 1 -W 1 " + name)
+    :mCommand("ping -c 1 -W 1 -q " + name)
 {
 }
 
@@ -24,7 +24,7 @@ string Pinger::ping()
         while ( ! feof(pingRequest) )
         {
             if ( fgets (buffer , 100 , pingRequest) == NULL ) break;
-                response = response  + buffer + "|";
+            response += buffer;
         }
         fclose (pingRequest);
     }

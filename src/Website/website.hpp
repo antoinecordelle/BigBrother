@@ -6,8 +6,9 @@
 #include "../Pinger/pinger.hpp"
 
 struct Metrics {
-    unsigned int availibility = 0;
+    unsigned int hostUnreachable = 0;
     unsigned int maxTime = 0;
+    unsigned int minTime = 0;
     unsigned int avgTime = 0;
     unsigned int pingCount = 0;
 };
@@ -22,6 +23,8 @@ public:
 
 private:
     void processPing(std::string pingResponse);
+    bool getResponseCode(const std::string& pingResponse);
+    double getResponseTime(const std::string& pingResponse);
 
 private:
     std::string mName;
