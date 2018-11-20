@@ -6,7 +6,7 @@
 using namespace std;
 
 Pinger::Pinger(std::string name)
-    :mCommand("ping -c 1 -W 1 -q " + name)
+    :mCommand("ping -c 1 -W 1 -q " + name + " ; echo $?")
 {
 }
 

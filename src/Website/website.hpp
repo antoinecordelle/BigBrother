@@ -23,8 +23,10 @@ public:
 
 private:
     void processPing(std::string pingResponse);
-    bool getResponseCode(const std::string& pingResponse);
+    int getResponseCode(const std::string& pingResponse);
     double getResponseTime(const std::string& pingResponse);
+    void updateMetrics(int codeResponse);
+    void updateMetrics(int codeResponse, double time);
 
 private:
     std::string mName;

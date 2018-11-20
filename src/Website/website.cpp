@@ -1,4 +1,5 @@
 #include "website.hpp"
+#include "../Error/undocumentederrorcodeexception.hpp"
 
 #include <iostream>
 #include <unistd.h>
@@ -31,17 +32,32 @@ void Website::run()
 
 void Website::processPing(std::string pingResponse)
 {
-    bool pingSuccess = getResponseCode(pingResponse);
-    if(pingSuccess)
-        double time(getResponseTime(pingResponse));
+    try
+    {
+        int codeResponse= getResponseCode(pingResponse);
+        if(codeResponse == 0)
+        {
+            double time(getResponseTime(pingResponse));
+            updateMetrics(codeResponse, time);
+        }
+        else
+            updateMetrics(codeResponse);
+    } catch (const std::invalid_argument& error)
+    {
+        std::cerr << "Dropping ping : Invalid argument: " << error.what() << '\n';
+    } catch (const UndocumentedErrorCodeException& error)
+    {
+        std::cerr << "Dropping ping : " << error.what() << '\n';
+    }
 }
 
-bool Website::getResponseCode(const std::string& pingResponse)
+int Website::getResponseCode(const std::string& pingResponse)
 {
-    if(pingResponse.rfind("100% packet loss") == string::npos)
-        return true;
+    int codeResponse = stoi(pingResponse.substr(pingResponse.size()-3));
+    if(codeResponse != 0 && codeResponse != 1 && codeResponse != 2)
+        throw UndocumentedErrorCodeException(codeResponse);
     else
-        return false;
+        return codeResponse;
 }
 
 double Website::getResponseTime(const std::string& pingResponse)
@@ -49,16 +65,23 @@ double Website::getResponseTime(const std::string& pingResponse)
     size_t positionStats = pingResponse.find("mdev = ");
     size_t positionEndStats = pingResponse.find('/', positionStats);
 
-    double time(-1.f);
-    try
-    {
-        time = stod(pingResponse.substr(positionStats + 7, positionEndStats - positionStats - 7));
-    }
-    catch (const std::invalid_argument& error) {
-        std::cerr << "Invalid argument: " << error.what() << '\n';
-    }
+    double time = stod(pingResponse.substr(positionStats + 7, positionEndStats - positionStats - 7));
     return time;
 }
+
+void Website::updateMetrics(int codeResponse)
+{
+    mMetrics.pingCount++;
+    mMetrics.hostUnreachable++;
+}
+
+void Website::updateMetrics(int codeResponse, double time)
+{
+    mMetrics.pingCount++;
+}
+
+
+
 
 
 
