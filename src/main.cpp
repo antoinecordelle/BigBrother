@@ -8,11 +8,11 @@ using namespace std;
 
 int main()
 {
-    Website website("google.com", 500);
+    Website website("google.com", 250);
 
     website.run();
 
-    Data ok = website.getMetrics();
+    Data ok = website.getMetrics(10, true);
 
     cout << ok.avgTime << " " << ok.maxTime << " " << ok.minTime;
 

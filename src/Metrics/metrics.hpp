@@ -2,6 +2,7 @@
 #define METRICS_HPP
 
 #include <ctime>
+#include <list>
 
 struct Ping {
     std::time_t time;
@@ -23,15 +24,22 @@ struct Data {
 class Metrics
 {
 public:
-    Metrics(std::time_t time);
+    Metrics();
 
     void updateMetrics(int codeResponse, double time);
     void updateMetrics(int codeResponse);
     Data getMetrics();
+    void deletePing(Ping ping);
+    void updateOldMetrics(const std::list<Ping>& pingList);
+
+private:
+    void updateMin(const std::list<Ping>& pingList);
+    void updateMax(const std::list<Ping>& pingList);
 
 private:
     Data mData;
-    time_t timeWindow;
+    bool minToUpdate;
+    bool maxToUpdate;
 };
 
 #endif // METRICS_HPP

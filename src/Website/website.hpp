@@ -15,7 +15,7 @@ public:
     Website(std::string name, int interval = 250);
 
     void run();
-    Data getMetrics();
+    Data getMetrics(time_t timeWindow, bool deleteOldPings = false);
 
 private:
     void processPing(std::string pingResponse);
@@ -23,6 +23,7 @@ private:
     double getResponseTime(const std::string& pingResponse) const;
     void updateMetrics(int codeResponse);
     void updateMetrics(int codeResponse, double time);
+    void deleteOldMetrics(time_t time, bool deleteOldPings = false);
 
 private:
     const std::string mName;

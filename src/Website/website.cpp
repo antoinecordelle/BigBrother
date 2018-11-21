@@ -11,7 +11,7 @@ using namespace std;
 
 Website::Website(std::string name, int interval)
     :mName(name)
-    ,mMetrics(600)
+    ,mMetrics()
     ,mPinger(name)
     ,mInterval(interval)
     ,isRunning(true)
@@ -27,7 +27,7 @@ void Website::run()
         processPing(mPinger.ping());
         this_thread::sleep_for(chrono::milliseconds(mInterval));
         i++;
-        if(i == 5)
+        if(i == 50)
             isRunning = false;
     }
 }
@@ -82,9 +82,33 @@ void Website::updateMetrics(int codeResponse, double time)
     mMetrics.updateMetrics(codeResponse, time);
 }
 
-Data Website::getMetrics()
+Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 {
+    deleteOldMetrics(timeWindow, deleteOldPings);
     return mMetrics.getMetrics();
+}
+
+void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
+{
+    time_t currentTime = time(0);
+    auto iter = mPingList.begin();
+    int i(0);
+    for(auto ite = mPingList.begin() ; ite != mPingList.end(); ite++)
+    {
+        if(currentTime - ite->time > timeWindow)
+        {
+            cout << i++;
+            mMetrics.deletePing(*ite);
+        }
+        else
+        {
+            iter = ite;
+            break;
+        }
+    }
+    if(deleteOldPings)
+        mPingList.erase(mPingList.begin(), iter);
+    mMetrics.updateOldMetrics(mPingList);
 }
 
 
