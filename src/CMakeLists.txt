@@ -5,6 +5,7 @@ add_executable(${PROJECT_NAME}
     main.cpp
     Website/website.cpp
     Pinger/pinger.cpp
+    Metrics/metrics.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES})

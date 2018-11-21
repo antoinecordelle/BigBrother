@@ -11,7 +11,7 @@ using namespace std;
 
 Website::Website(std::string name, int interval)
     :mName(name)
-    ,mMetrics()
+    ,mMetrics(600)
     ,mPinger(name)
     ,mInterval(interval)
     ,isRunning(true)
@@ -72,24 +72,19 @@ double Website::getResponseTime(const std::string& pingResponse) const
 
 void Website::updateMetrics(int codeResponse)
 {
-    mMetrics.pingCount++;
-    mMetrics.hostUnreachableCount++;
+    mPingList.push_back(Ping(std::time(0), codeResponse));
+    mMetrics.updateMetrics(codeResponse);
 }
 
 void Website::updateMetrics(int codeResponse, double time)
 {
-    mMetrics.pingCount++;
-    mMetrics.sumTime+= time;
-    if (mMetrics.maxTime < time)
-        mMetrics.maxTime = time;
-    if (mMetrics.minTime > time)
-        mMetrics.minTime = time;
+    mPingList.push_back(Ping(std::time(0), codeResponse, time));
+    mMetrics.updateMetrics(codeResponse, time);
 }
 
-Metrics Website::getMetrics()
+Data Website::getMetrics()
 {
-    mMetrics.avgTime = mMetrics.sumTime/(double)mMetrics.pingCount;
-    return mMetrics;
+    return mMetrics.getMetrics();
 }
 
 

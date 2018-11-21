@@ -12,7 +12,7 @@ int main()
 
     website.run();
 
-    Metrics ok = website.getMetrics();
+    Data ok = website.getMetrics();
 
     cout << ok.avgTime << " " << ok.maxTime << " " << ok.minTime;
 
