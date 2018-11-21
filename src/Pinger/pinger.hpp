@@ -13,7 +13,7 @@ public:
 
 
 private:
-    std::string mCommand;
+    const std::string mCommand;
 };
 
 #endif // PINGER_H

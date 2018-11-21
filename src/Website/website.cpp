@@ -1,5 +1,5 @@
 #include "website.hpp"
-#include "../Error/undocumentederrorcodeexception.hpp"
+#include "../Error/undocumentedErrorCodeException.hpp"
 
 #include <iostream>
 #include <unistd.h>
@@ -19,6 +19,7 @@ Website::Website(std::string name, int interval)
 
 void Website::run()
 {
+    isRunning = true;
     int i(0);
     while(isRunning)
     {
@@ -51,16 +52,15 @@ void Website::processPing(std::string pingResponse)
     }
 }
 
-int Website::getResponseCode(const std::string& pingResponse)
+int Website::getResponseCode(const std::string& pingResponse) const
 {
     int codeResponse = stoi(pingResponse.substr(pingResponse.size()-3));
     if(codeResponse != 0 && codeResponse != 1 && codeResponse != 2)
         throw UndocumentedErrorCodeException(codeResponse);
-    else
-        return codeResponse;
+    return codeResponse;
 }
 
-double Website::getResponseTime(const std::string& pingResponse)
+double Website::getResponseTime(const std::string& pingResponse) const
 {
     size_t positionStats = pingResponse.find("mdev = ");
     size_t positionEndStats = pingResponse.find('/', positionStats);
@@ -72,7 +72,7 @@ double Website::getResponseTime(const std::string& pingResponse)
 void Website::updateMetrics(int codeResponse)
 {
     mMetrics.pingCount++;
-    mMetrics.hostUnreachable++;
+    mMetrics.hostUnreachableCount++;
 }
 
 void Website::updateMetrics(int codeResponse, double time)

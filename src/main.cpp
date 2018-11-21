@@ -12,5 +12,6 @@ int main()
 
     website.run();
 
+    return 0;
 }
 

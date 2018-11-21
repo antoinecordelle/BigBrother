@@ -6,7 +6,7 @@
 #include "../Pinger/pinger.hpp"
 
 struct Metrics {
-    unsigned int hostUnreachable = 0;
+    unsigned int hostUnreachableCount = 0;
     unsigned int maxTime = 0;
     unsigned int minTime = 0;
     unsigned int avgTime = 0;
@@ -23,16 +23,16 @@ public:
 
 private:
     void processPing(std::string pingResponse);
-    int getResponseCode(const std::string& pingResponse);
-    double getResponseTime(const std::string& pingResponse);
+    int getResponseCode(const std::string& pingResponse) const;
+    double getResponseTime(const std::string& pingResponse) const;
     void updateMetrics(int codeResponse);
     void updateMetrics(int codeResponse, double time);
 
 private:
-    std::string mName;
+    const std::string mName;
     Metrics mMetrics;
     Pinger mPinger;
-    int mInterval;
+    const int mInterval;
     bool isRunning;
 
 };
