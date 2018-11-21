@@ -2,17 +2,26 @@
 #define WEBSITE_HPP
 
 #include <string>
+#include <ctime>
 
 #include "../Pinger/pinger.hpp"
 
-struct Metrics {
-    unsigned int hostUnreachableCount = 0;
-    unsigned int maxTime = 0;
-    unsigned int minTime = 0;
-    unsigned int avgTime = 0;
-    unsigned int pingCount = 0;
+struct Ping {
+    std::time_t time;
+    int codeResponse;
+    int timeStamp;
 };
 
+struct Metrics {
+    unsigned int hostUnreachableCount = 0;
+    unsigned int pingCount = 0;
+    double maxTime = 0;
+    double minTime = 1.79769e+308;
+    double sumTime = 0;
+    double avgTime = 0;
+
+    time_t timeWindow;
+};
 
 class Website
 {
@@ -20,6 +29,7 @@ public:
     Website(std::string name, int interval = 250);
 
     void run();
+    Metrics getMetrics();
 
 private:
     void processPing(std::string pingResponse);

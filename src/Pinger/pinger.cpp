@@ -28,6 +28,5 @@ string Pinger::ping()
         }
         fclose (pingRequest);
     }
-    cout << response << endl;
     return response;
 }
