@@ -73,11 +73,13 @@ void Website::updateMetrics(int codeResponse)
 {
     mMetrics.pingCount++;
     mMetrics.hostUnreachableCount++;
+    cout << "Update metrics unreachable";
 }
 
 void Website::updateMetrics(int codeResponse, double time)
 {
     mMetrics.pingCount++;
+    cout << "Update metrics " << time;
 }
 
 

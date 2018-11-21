@@ -3,23 +3,24 @@
 
 #include <exception>
 #include <string>
+#include <iostream>
 
 class UndocumentedErrorCodeException : public std::exception
 {
 public:
-    UndocumentedErrorCodeException(int codeResponse) throw()
+    UndocumentedErrorCodeException(const int codeResponse) throw()
         :mCodeResponse(codeResponse)
     {
-
     }
 
-    virtual const char* what() const throw()
+    const char* what() const throw()
     {
-        return ("Unexpected Error Code from ping : " + std::to_string(mCodeResponse)).c_str();
+        // FIXME
+        return "Unexpected Error Code from ping"; //+ std::to_string(mCodeResponse))).c_str();
     }
 
 private:
-    int mCodeResponse;
+    const int mCodeResponse;
 };
 
 

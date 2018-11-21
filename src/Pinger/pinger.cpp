@@ -6,7 +6,7 @@
 using namespace std;
 
 Pinger::Pinger(std::string name)
-    :mCommand("ping -c 1 -W 1 -q " + name + " ; echo $?")
+    :mCommand("ping -c 1 -W 1 -q " + name + " 2>&1 ; echo $?")
 {
 }
 
@@ -28,5 +28,6 @@ string Pinger::ping()
         }
         fclose (pingRequest);
     }
+    cout << response << endl;
     return response;
 }
