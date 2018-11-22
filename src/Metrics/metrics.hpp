@@ -24,11 +24,12 @@ struct Data {
 class Metrics
 {
 public:
-    Metrics();
+    Metrics(std::list<Ping>::iterator ite);
 
     void updateMetrics(int codeResponse, double time);
     void updateMetrics(int codeResponse);
     Data getMetrics();
+    std::list<Ping>::iterator& getOldestPing();
     void deletePing(Ping ping);
     void updateOldMetrics(const std::list<Ping>& pingList);
 
@@ -40,6 +41,7 @@ private:
     Data mData;
     bool minToUpdate;
     bool maxToUpdate;
+    std::list<Ping>::iterator mOldestPing;
 };
 
 #endif // METRICS_HPP

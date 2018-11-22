@@ -10,9 +10,10 @@ Ping::Ping(std::time_t aTime, int aCode, int aTimeDelay)
 }
 
 
-Metrics::Metrics()
+Metrics::Metrics(std::list<Ping>::iterator ite)
     :minToUpdate(false)
     ,maxToUpdate(false)
+    ,mOldestPing(ite)
 {
 
 }
@@ -38,6 +39,11 @@ void Metrics::updateMetrics(int codeResponse)
 Data Metrics::getMetrics()
 {
     return mData;
+}
+
+std::list<Ping>::iterator& Metrics::getOldestPing()
+{
+    return mOldestPing;
 }
 
 void Metrics::deletePing(Ping ping)
@@ -69,7 +75,7 @@ void Metrics::updateMin(const std::list<Ping>& pingList)
 {
     minToUpdate = false;
     mData.minTime = pingList.front().timeDelay;
-    for(auto ite = pingList.begin(); ite != pingList.end(); ite++)
+    for(auto ite = mOldestPing; ite != pingList.end(); ite++)
     {
         if(ite->timeDelay < mData.minTime)
             mData.minTime = ite->timeDelay;
@@ -80,7 +86,7 @@ void Metrics::updateMax(const std::list<Ping>& pingList)
 {
     maxToUpdate = false;
     mData.maxTime = pingList.front().timeDelay;
-    for(auto ite = pingList.begin(); ite != pingList.end(); ite++)
+    for(auto ite = mOldestPing; ite != pingList.end(); ite++)
     {
         if(ite->timeDelay < mData.maxTime)
             mData.maxTime = ite->timeDelay;

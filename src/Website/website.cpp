@@ -11,7 +11,7 @@ using namespace std;
 
 Website::Website(std::string name, int interval)
     :mName(name)
-    ,mMetrics()
+    ,mMetrics(mPingList.begin())
     ,mPinger(name)
     ,mInterval(interval)
     ,isRunning(true)
@@ -91,27 +91,40 @@ Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
 {
     time_t currentTime = time(0);
-    auto iter = mPingList.begin();
-    int i(0);
-    for(auto ite = mPingList.begin() ; ite != mPingList.end(); ite++)
+    auto oldestPing = mMetrics.getOldestPing();
+    checkOldestPing(oldestPing, timeWindow, currentTime);
+    for(auto ite = oldestPing; ite != mPingList.end(); ite++)
     {
         if(currentTime - ite->time > timeWindow)
         {
-            cout << i++;
             mMetrics.deletePing(*ite);
         }
         else
         {
-            iter = ite;
+            oldestPing = ite;
             break;
         }
     }
     if(deleteOldPings)
-        mPingList.erase(mPingList.begin(), iter);
+        mPingList.erase(mPingList.begin(), oldestPing);
     mMetrics.updateOldMetrics(mPingList);
 }
 
 
+void Website::checkOldestPing(std::list<Ping>::iterator& pingIte, time_t timeWindow, time_t currentTime)
+{
+    std::list<Ping>::iterator iter = pingIte;
+    bool changed(false);
+    iter--;
+    while(currentTime - iter->time < timeWindow && iter != --mPingList.begin())
+    {
+        changed = true;
+        iter--;
+        std::cout << "Wrongly sorted ping" << std::endl;
+    }
+    if (changed)
+        pingIte = iter;
+}
 
 
 

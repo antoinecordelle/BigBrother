@@ -23,7 +23,8 @@ private:
     double getResponseTime(const std::string& pingResponse) const;
     void updateMetrics(int codeResponse);
     void updateMetrics(int codeResponse, double time);
-    void deleteOldMetrics(time_t time, bool deleteOldPings = false);
+    void deleteOldMetrics(time_t timeWindow, bool deleteOldPings = false);
+    void checkOldestPing(std::list<Ping>::iterator& pingIte, time_t timeWindow, time_t currentTime);
 
 private:
     const std::string mName;
