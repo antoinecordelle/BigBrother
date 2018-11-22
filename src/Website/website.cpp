@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <unistd.h>
-#include <chrono>
 #include <thread>
 
 
@@ -22,12 +21,15 @@ Website::Website(std::string name, int interval, std::vector<time_t> mTimeWindow
 
 void Website::run()
 {
+    using namespace std::chrono;
+    auto timer = system_clock::now();
     isRunning = true;
     int i(0);
     while(isRunning)
     {
+        timer = system_clock::now();
         processPing(mPinger.ping());
-        this_thread::sleep_for(chrono::milliseconds(mInterval));
+        std::this_thread::sleep_for(mInterval - duration_cast<milliseconds>(system_clock::now() - timer));
         i++;
         if(i == 50)
             isRunning = false;

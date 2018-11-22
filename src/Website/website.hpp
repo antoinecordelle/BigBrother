@@ -6,6 +6,7 @@
 #include <list>
 #include <map>
 #include <vector>
+#include <chrono>
 
 #include "../Pinger/pinger.hpp"
 #include "../Metrics/metrics.hpp"
@@ -33,7 +34,7 @@ private:
     std::list<Ping> mPingList;
     std::map<time_t, Metrics> mMetricsMap;
     Pinger mPinger;
-    const int mInterval;
+    const std::chrono::milliseconds mInterval;
     bool isRunning;
 
 };
