@@ -9,7 +9,7 @@ using namespace std;
 
 int main()
 {
-    Website website("google.com", 250);
+    Website website("google.com", 250, {10});
 
     website.run();
 

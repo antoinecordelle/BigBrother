@@ -9,6 +9,12 @@ Ping::Ping(std::time_t aTime, int aCode, int aTimeDelay)
 
 }
 
+Metrics::Metrics()
+    :minToUpdate(false)
+    ,maxToUpdate(false)
+{
+
+}
 
 Metrics::Metrics(std::list<Ping>::iterator ite)
     :minToUpdate(false)

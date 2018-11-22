@@ -9,13 +9,15 @@
 
 using namespace std;
 
-Website::Website(std::string name, int interval)
+Website::Website(std::string name, int interval, std::vector<time_t> mTimeWindows)
     :mName(name)
-    ,mMetrics(mPingList.begin())
+    ,mMetricsMap()
     ,mPinger(name)
     ,mInterval(interval)
     ,isRunning(true)
 {
+    for(auto ite = mTimeWindows.begin(); ite != mTimeWindows.end(); ite++)
+        mMetricsMap[*ite] = Metrics(mPingList.begin());
 }
 
 void Website::run()
@@ -73,31 +75,33 @@ double Website::getResponseTime(const std::string& pingResponse) const
 void Website::updateMetrics(int codeResponse)
 {
     mPingList.push_back(Ping(std::time(0), codeResponse));
-    mMetrics.updateMetrics(codeResponse);
+    for(auto ite = mMetricsMap.begin(); ite != mMetricsMap.end(); ite++)
+        (ite->second).updateMetrics(codeResponse);
 }
 
 void Website::updateMetrics(int codeResponse, double time)
 {
     mPingList.push_back(Ping(std::time(0), codeResponse, time));
-    mMetrics.updateMetrics(codeResponse, time);
+    for(auto ite = mMetricsMap.begin(); ite != mMetricsMap.end(); ite++)
+        (ite->second).updateMetrics(codeResponse, time);
 }
 
 Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 {
     deleteOldMetrics(timeWindow, deleteOldPings);
-    return mMetrics.getMetrics();
+    return mMetricsMap[timeWindow].getMetrics();
 }
 
 void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
 {
     time_t currentTime = time(0);
-    auto oldestPing = mMetrics.getOldestPing();
+    auto oldestPing = mMetricsMap[timeWindow].getOldestPing();
     checkOldestPing(oldestPing, timeWindow, currentTime);
     for(auto ite = oldestPing; ite != mPingList.end(); ite++)
     {
         if(currentTime - ite->time > timeWindow)
         {
-            mMetrics.deletePing(*ite);
+            mMetricsMap[timeWindow].deletePing(*ite);
         }
         else
         {
@@ -107,7 +111,7 @@ void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
     }
     if(deleteOldPings)
         mPingList.erase(mPingList.begin(), oldestPing);
-    mMetrics.updateOldMetrics(mPingList);
+    mMetricsMap[timeWindow].updateOldMetrics(mPingList);
 }
 
 

@@ -4,6 +4,8 @@
 #include <string>
 #include <ctime>
 #include <list>
+#include <map>
+#include <vector>
 
 #include "../Pinger/pinger.hpp"
 #include "../Metrics/metrics.hpp"
@@ -12,7 +14,7 @@
 class Website
 {
 public:
-    Website(std::string name, int interval = 250);
+    Website(std::string name, int interval = 250, std::vector<time_t> mTimeWindows = std::vector<time_t>({120, 600, 3600}));
 
     void run();
     Data getMetrics(time_t timeWindow, bool deleteOldPings = false);
@@ -29,7 +31,7 @@ private:
 private:
     const std::string mName;
     std::list<Ping> mPingList;
-    Metrics mMetrics;
+    std::map<time_t, Metrics> mMetricsMap;
     Pinger mPinger;
     const int mInterval;
     bool isRunning;

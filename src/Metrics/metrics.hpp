@@ -24,6 +24,7 @@ struct Data {
 class Metrics
 {
 public:
+    Metrics();
     Metrics(std::list<Ping>::iterator ite);
 
     void updateMetrics(int codeResponse, double time);
