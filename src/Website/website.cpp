@@ -64,7 +64,6 @@ double Website::getResponseTime(const string& pingResponse) const
 {
     size_t positionStats = pingResponse.find("mdev = ");
     size_t positionEndStats = pingResponse.find('/', positionStats);
-
     double time = stod(pingResponse.substr(positionStats + 7, positionEndStats - positionStats - 7));
     return time;
 }
@@ -106,7 +105,7 @@ void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
     {
         if(currentTime - ite->time > timeWindow)
         {
-            mMetricsMap[timeWindow]->deletePing(*ite);
+            mMetricsMap[timeWindow]->removePing(*ite);
         }
         else
         {
@@ -130,7 +129,6 @@ void Website::checkOldestPing(list<Ping>::iterator& pingIte, time_t timeWindow, 
     iter--;
     while(currentTime - iter->time < timeWindow && iter != --mPingList.begin())
     {
-        cout << "ok" << endl;
         changed = true;
         iter--;
     }

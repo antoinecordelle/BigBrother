@@ -1,7 +1,8 @@
 #include "metrics.hpp"
 
+#include <iostream>
 
-Ping::Ping(std::time_t aTime, int aCode, int aTimeDelay)
+Ping::Ping(std::time_t aTime, int aCode, double aTimeDelay)
     :time(aTime)
     ,codeResponse(aCode)
     ,timeDelay(aTimeDelay)
@@ -63,7 +64,7 @@ void Metrics::setOldestPing(std::list<Ping>::iterator newOldestPing)
 }
 
 
-void Metrics::deletePing(Ping ping)
+void Metrics::removePing(Ping ping)
 {
     std::lock_guard<std::mutex> lock(mMetricsLock);
     mData.pingCount--;
@@ -72,9 +73,9 @@ void Metrics::deletePing(Ping ping)
     else
     {
         mData.sumTime -= ping.timeDelay;
-        if(mData.maxTime == ping.timeDelay)
+        if(std::abs(mData.maxTime - ping.timeDelay) < 0.5)
             maxToUpdate = true;
-        else if (mData.minTime == ping.timeDelay)
+        else if (std::abs(mData.minTime - ping.timeDelay) < 0.5)
             minToUpdate = true;
     }
 }
@@ -92,9 +93,8 @@ void Metrics::updateOldMetrics(const std::list<Ping>& pingList)
 
 void Metrics::updateMin(const std::list<Ping>& pingList)
 {
-    std::lock_guard<std::mutex> lock(mMetricsLock);
     minToUpdate = false;
-    mData.minTime = pingList.front().timeDelay;
+    mData.minTime = mOldestPing->timeDelay;
     for(auto ite = mOldestPing; ite != pingList.end(); ite++)
     {
         if(ite->timeDelay < mData.minTime)
@@ -104,12 +104,11 @@ void Metrics::updateMin(const std::list<Ping>& pingList)
 
 void Metrics::updateMax(const std::list<Ping>& pingList)
 {
-    std::lock_guard<std::mutex> lock(mMetricsLock);
     maxToUpdate = false;
-    mData.maxTime = pingList.front().timeDelay;
+    mData.maxTime = mOldestPing->timeDelay;
     for(auto ite = mOldestPing; ite != pingList.end(); ite++)
     {
-        if(ite->timeDelay < mData.maxTime)
+        if(ite->timeDelay > mData.maxTime)
             mData.maxTime = ite->timeDelay;
     }
 }

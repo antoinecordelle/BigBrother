@@ -11,7 +11,7 @@ struct Ping {
     int codeResponse;
     double timeDelay;
 
-    Ping(std::time_t aTime, int aCode, int aTimeDelay = 0.f);
+    Ping(std::time_t aTime, int aCode, double aTimeDelay = 0.f);
 };
 
 struct Data {
@@ -34,7 +34,7 @@ public:
     Data getMetrics();
     std::list<Ping>::iterator getOldestPing();
     void setOldestPing(std::list<Ping>::iterator newOldestPing);
-    void deletePing(Ping ping);
+    void removePing(Ping ping);
     void updateOldMetrics(const std::list<Ping>& pingList);
     bool shouldInitialize();
     void setInitialized();

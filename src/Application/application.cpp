@@ -44,12 +44,16 @@ void Application::monitor()
 {
     int i(0);
 
-    while(i++ < 20)
+    while(i++ < 1000)
     {
         this_thread::sleep_for(chrono::milliseconds(1000));
-        Data ok10 = mWebsites[0]->getMetrics(10, false);
-        Data ok60 = mWebsites[0]->getMetrics(60, true);
-        cout << "10sec : " << ok10.pingCount << " " << ok10.avgTime << " " << ok10.maxTime << " " << ok10.minTime << endl;
-        cout << "60sec : " << ok60.pingCount << " " << ok60.avgTime << " " << ok60.maxTime << " " << ok60.minTime << endl << endl;
+        for(int i = 0; i != mWebsites.size(); i++)
+        {
+            Data ok10 = mWebsites[i]->getMetrics(10, false);
+            Data ok60 = mWebsites[i]->getMetrics(60, true);
+            cout << "10sec : " << ok10.pingCount << " " << ok10.avgTime << " " << ok10.maxTime << " " << ok10.minTime << "  " << ok10.hostUnreachableCount << endl;
+            cout << "60sec : " << ok60.pingCount << " " << ok60.avgTime << " " << ok60.maxTime << " " << ok60.minTime << "  " << ok60.hostUnreachableCount << endl << endl;
+        }
+
     }
 }
