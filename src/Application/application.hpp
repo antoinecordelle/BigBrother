@@ -12,7 +12,7 @@ public:
     void run();
 
 private:
-    std::vector<Website> mWebsites;
+    std::vector<std::unique_ptr<Website>> mWebsites;
     std::vector<std::thread> mThreads;
 };
 

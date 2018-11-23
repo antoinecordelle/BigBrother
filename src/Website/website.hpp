@@ -7,6 +7,8 @@
 #include <map>
 #include <vector>
 #include <chrono>
+#include <mutex>
+#include <atomic>
 
 #include "../Pinger/pinger.hpp"
 #include "../Metrics/metrics.hpp"
@@ -26,17 +28,18 @@ private:
     int getResponseCode(const std::string& pingResponse) const;
     double getResponseTime(const std::string& pingResponse) const;
     void updateMetrics(int codeResponse);
-    void updateMetrics(int codeResponse, double time);
+    void updateMetrics(int codeResponse, double timer);
     void deleteOldMetrics(time_t timeWindow, bool deleteOldPings = false);
     void checkOldestPing(std::list<Ping>::iterator& pingIte, time_t timeWindow, time_t currentTime);
 
 private:
     const std::string mName;
     std::list<Ping> mPingList;
-    std::map<time_t, Metrics> mMetricsMap;
+    std::map<time_t, std::unique_ptr<Metrics>> mMetricsMap;
     Pinger mPinger;
     const std::chrono::milliseconds mInterval;
-    bool isRunning;
+    std::atomic<bool> isRunning;
+    std::mutex mListLock;
 
 };
 

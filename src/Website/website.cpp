@@ -5,8 +5,9 @@
 #include <unistd.h>
 #include <thread>
 
+using namespace std;
 
-Website::Website(std::string name, int interval, std::vector<time_t> mTimeWindows)
+Website::Website(string name, int interval, vector<time_t> mTimeWindows)
     :mName(name)
     ,mMetricsMap()
     ,mPinger(name)
@@ -14,7 +15,7 @@ Website::Website(std::string name, int interval, std::vector<time_t> mTimeWindow
     ,isRunning(true)
 {
     for(auto ite = mTimeWindows.begin(); ite != mTimeWindows.end(); ite++)
-        mMetricsMap[*ite] = Metrics(mPingList.begin());
+        mMetricsMap[*ite] = unique_ptr<Metrics>(new Metrics(mPingList.begin()));
 }
 
 void Website::run()
@@ -42,16 +43,16 @@ void Website::processPing(std::string pingResponse)
         }
         else
             updateMetrics(codeResponse);
-    } catch (const std::invalid_argument& error)
+    } catch (const invalid_argument& error)
     {
-        std::cerr << "Dropping ping : Invalid argument: " << error.what() << '\n';
+        cerr << "Dropping ping : Invalid argument: " << error.what() << '\n';
     } catch (const UndocumentedErrorCodeException& error)
     {
-        std::cerr << "Dropping ping : " << error.what() << '\n';
+        cerr << "Dropping ping : " << error.what() << '\n';
     }
 }
 
-int Website::getResponseCode(const std::string& pingResponse) const
+int Website::getResponseCode(const string& pingResponse) const
 {
     int codeResponse = stoi(pingResponse.substr(pingResponse.size()-3));
     if(codeResponse != 0 && codeResponse != 1 && codeResponse != 2)
@@ -59,7 +60,7 @@ int Website::getResponseCode(const std::string& pingResponse) const
     return codeResponse;
 }
 
-double Website::getResponseTime(const std::string& pingResponse) const
+double Website::getResponseTime(const string& pingResponse) const
 {
     size_t positionStats = pingResponse.find("mdev = ");
     size_t positionEndStats = pingResponse.find('/', positionStats);
@@ -70,37 +71,42 @@ double Website::getResponseTime(const std::string& pingResponse) const
 
 void Website::updateMetrics(int codeResponse)
 {
-    mPingList.push_back(Ping(std::time(0), codeResponse));
+    lock_guard<mutex> lock(mListLock);
+    mPingList.push_back(Ping(time(0), codeResponse));
     for(auto ite = mMetricsMap.begin(); ite != mMetricsMap.end(); ite++)
-        (ite->second).updateMetrics(codeResponse);
+        (ite->second)->updateMetrics(codeResponse);
 }
 
-void Website::updateMetrics(int codeResponse, double time)
+void Website::updateMetrics(int codeResponse, double timer)
 {
-    mPingList.push_back(Ping(std::time(0), codeResponse, time));
+    lock_guard<mutex> lock(mListLock);
+    mPingList.push_back(Ping(time(0), codeResponse, timer));
     for(auto ite = mMetricsMap.begin(); ite != mMetricsMap.end(); ite++)
-        (ite->second).updateMetrics(codeResponse, time);
+        (ite->second)->updateMetrics(codeResponse, timer);
 }
 
 Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 {
     deleteOldMetrics(timeWindow, deleteOldPings);
-    return mMetricsMap[timeWindow].getMetrics();
+    return mMetricsMap[timeWindow]->getMetrics();
 }
 
 void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
 {
     time_t currentTime = time(0);
-    std::cout << mPingList.size() << std::endl;
-    auto oldestPing = mMetricsMap[timeWindow].getOldestPing();
-    if(mMetricsMap[timeWindow].shouldInitialize())
+    auto oldestPing = mMetricsMap[timeWindow]->getOldestPing();
+    if(mMetricsMap[timeWindow]->shouldInitialize())
+    {
+        lock_guard<mutex> lock(mListLock);
         oldestPing = mPingList.begin();
+    }
     checkOldestPing(oldestPing, timeWindow, currentTime);
+    lock_guard<mutex> lock(mListLock);
     for(auto ite = oldestPing; ite != mPingList.end(); ite++)
     {
         if(currentTime - ite->time > timeWindow)
         {
-            mMetricsMap[timeWindow].deletePing(*ite);
+            mMetricsMap[timeWindow]->deletePing(*ite);
         }
         else
         {
@@ -110,15 +116,16 @@ void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
     }
     if(deleteOldPings)
         mPingList.erase(mPingList.begin(), oldestPing);
-    mMetricsMap[timeWindow].updateOldMetrics(mPingList);
+    mMetricsMap[timeWindow]->updateOldMetrics(mPingList);
 }
 
 
-void Website::checkOldestPing(std::list<Ping>::iterator& pingIte, time_t timeWindow, time_t currentTime)
+void Website::checkOldestPing(list<Ping>::iterator& pingIte, time_t timeWindow, time_t currentTime)
 {
-    std::list<Ping>::iterator iter = pingIte;
+    list<Ping>::iterator iter = pingIte;
     bool changed(false);
     iter--;
+    lock_guard<mutex> lock(mListLock);
     while(currentTime - iter->time < timeWindow && iter != --mPingList.begin())
     {
         changed = true;

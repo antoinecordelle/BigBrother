@@ -28,6 +28,7 @@ Metrics::Metrics(std::list<Ping>::iterator ite)
 
 void Metrics::updateMetrics(int codeResponse, double time)
 {
+    std::lock_guard<std::mutex> lock(mMetricsLock);
     mData.pingCount++;
     mData.sumTime+= time;
     if (mData.maxTime < time)
@@ -37,7 +38,8 @@ void Metrics::updateMetrics(int codeResponse, double time)
 }
 
 void Metrics::updateMetrics(int codeResponse)
-{
+{   
+    std::lock_guard<std::mutex> lock(mMetricsLock);
     mData.pingCount++;
     if(codeResponse != 0)
         mData.hostUnreachableCount++;
@@ -46,6 +48,7 @@ void Metrics::updateMetrics(int codeResponse)
 
 Data Metrics::getMetrics()
 {
+    std::lock_guard<std::mutex> lock(mMetricsLock);
     return mData;
 }
 
@@ -56,6 +59,7 @@ std::list<Ping>::iterator& Metrics::getOldestPing()
 
 void Metrics::deletePing(Ping ping)
 {
+    std::lock_guard<std::mutex> lock(mMetricsLock);
     mData.pingCount--;
     if(ping.codeResponse != 0)
         mData.hostUnreachableCount--;
@@ -71,6 +75,7 @@ void Metrics::deletePing(Ping ping)
 
 void Metrics::updateOldMetrics(const std::list<Ping>& pingList)
 {
+    std::lock_guard<std::mutex> lock(mMetricsLock);
     if(minToUpdate)
         updateMin(pingList);
     if(maxToUpdate)
@@ -81,6 +86,7 @@ void Metrics::updateOldMetrics(const std::list<Ping>& pingList)
 
 void Metrics::updateMin(const std::list<Ping>& pingList)
 {
+    std::lock_guard<std::mutex> lock(mMetricsLock);
     minToUpdate = false;
     mData.minTime = pingList.front().timeDelay;
     for(auto ite = mOldestPing; ite != pingList.end(); ite++)
@@ -92,6 +98,7 @@ void Metrics::updateMin(const std::list<Ping>& pingList)
 
 void Metrics::updateMax(const std::list<Ping>& pingList)
 {
+    std::lock_guard<std::mutex> lock(mMetricsLock);
     maxToUpdate = false;
     mData.maxTime = pingList.front().timeDelay;
     for(auto ite = mOldestPing; ite != pingList.end(); ite++)

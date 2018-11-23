@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <list>
+#include <mutex>
 
 struct Ping {
     std::time_t time;
@@ -45,6 +46,7 @@ private:
     bool maxToUpdate;
     bool initialized;
     std::list<Ping>::iterator mOldestPing;
+    std::mutex mMetricsLock;
 };
 
 #endif // METRICS_HPP
