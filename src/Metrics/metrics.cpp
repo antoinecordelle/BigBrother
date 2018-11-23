@@ -52,10 +52,16 @@ Data Metrics::getMetrics()
     return mData;
 }
 
-std::list<Ping>::iterator& Metrics::getOldestPing()
+std::list<Ping>::iterator Metrics::getOldestPing()
 {
     return mOldestPing;
 }
+
+void Metrics::setOldestPing(std::list<Ping>::iterator newOldestPing)
+{
+    mOldestPing = newOldestPing;
+}
+
 
 void Metrics::deletePing(Ping ping)
 {
@@ -110,7 +116,12 @@ void Metrics::updateMax(const std::list<Ping>& pingList)
 
 bool Metrics::shouldInitialize()
 {
-    initialized = true;
     return initialized;
+}
+
+void Metrics::setInitialized()
+{
+    std::lock_guard<std::mutex> lock(mMetricsLock);
+    initialized = true;
 }
 

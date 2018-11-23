@@ -4,6 +4,7 @@
 #include <ctime>
 #include <list>
 #include <mutex>
+#include <atomic>
 
 struct Ping {
     std::time_t time;
@@ -31,10 +32,12 @@ public:
     void updateMetrics(int codeResponse, double time);
     void updateMetrics(int codeResponse);
     Data getMetrics();
-    std::list<Ping>::iterator& getOldestPing();
+    std::list<Ping>::iterator getOldestPing();
+    void setOldestPing(std::list<Ping>::iterator newOldestPing);
     void deletePing(Ping ping);
     void updateOldMetrics(const std::list<Ping>& pingList);
     bool shouldInitialize();
+    void setInitialized();
 
 private:
     void updateMin(const std::list<Ping>& pingList);

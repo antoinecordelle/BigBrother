@@ -94,14 +94,14 @@ Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
 {
     time_t currentTime = time(0);
-    auto oldestPing = mMetricsMap[timeWindow]->getOldestPing();
-    if(mMetricsMap[timeWindow]->shouldInitialize())
-    {
-        lock_guard<mutex> lock(mListLock);
-        oldestPing = mPingList.begin();
-    }
-    checkOldestPing(oldestPing, timeWindow, currentTime);
     lock_guard<mutex> lock(mListLock);
+    if(!mMetricsMap[timeWindow]->shouldInitialize())
+    {
+        mMetricsMap[timeWindow]->setInitialized();
+        mMetricsMap[timeWindow]->setOldestPing(mPingList.begin());
+    }
+    auto oldestPing = mMetricsMap[timeWindow]->getOldestPing();
+    checkOldestPing(oldestPing, timeWindow, currentTime);
     for(auto ite = oldestPing; ite != mPingList.end(); ite++)
     {
         if(currentTime - ite->time > timeWindow)
@@ -111,11 +111,14 @@ void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
         else
         {
             oldestPing = ite;
+            mMetricsMap[timeWindow]->setOldestPing(ite);
             break;
         }
     }
     if(deleteOldPings)
+    {
         mPingList.erase(mPingList.begin(), oldestPing);
+    }
     mMetricsMap[timeWindow]->updateOldMetrics(mPingList);
 }
 
@@ -125,12 +128,11 @@ void Website::checkOldestPing(list<Ping>::iterator& pingIte, time_t timeWindow, 
     list<Ping>::iterator iter = pingIte;
     bool changed(false);
     iter--;
-    lock_guard<mutex> lock(mListLock);
     while(currentTime - iter->time < timeWindow && iter != --mPingList.begin())
     {
+        cout << "ok" << endl;
         changed = true;
         iter--;
-        std::cout << "Wrongly sorted ping" << std::endl;
     }
     if (changed)
         pingIte = iter;

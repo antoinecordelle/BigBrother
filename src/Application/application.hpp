@@ -12,6 +12,11 @@ public:
     void run();
 
 private:
+    void launchThreads();
+    void stopThreads();
+    void monitor();
+
+private:
     std::vector<std::unique_ptr<Website>> mWebsites;
     std::vector<std::thread> mThreads;
 };
