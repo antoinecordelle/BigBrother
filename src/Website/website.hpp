@@ -19,6 +19,7 @@ public:
 
     void run();
     Data getMetrics(time_t timeWindow, bool deleteOldPings = false);
+    void stopRunning();
 
 private:
     void processPing(std::string pingResponse);

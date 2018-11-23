@@ -1,21 +1,13 @@
-#include <string>
-#include <iostream>
-
-#include "Pinger/pinger.hpp"
-#include "Website/website.hpp"
+#include "Application/application.hpp"
 
 
 using namespace std;
 
 int main()
 {
-    Website website("google.com", 250, {10});
+    Application app;
 
-    website.run();
-
-    Data ok = website.getMetrics(10, true);
-
-    cout << ok.avgTime << " " << ok.maxTime << " " << ok.minTime;
+    app.run();
 
     return 0;
 }

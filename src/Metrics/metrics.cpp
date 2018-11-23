@@ -12,6 +12,7 @@ Ping::Ping(std::time_t aTime, int aCode, int aTimeDelay)
 Metrics::Metrics()
     :minToUpdate(false)
     ,maxToUpdate(false)
+    ,initialized(false)
 {
 
 }
@@ -20,6 +21,7 @@ Metrics::Metrics(std::list<Ping>::iterator ite)
     :minToUpdate(false)
     ,maxToUpdate(false)
     ,mOldestPing(ite)
+    ,initialized(false)
 {
 
 }
@@ -99,4 +101,9 @@ void Metrics::updateMax(const std::list<Ping>& pingList)
     }
 }
 
+bool Metrics::shouldInitialize()
+{
+    initialized = true;
+    return initialized;
+}
 

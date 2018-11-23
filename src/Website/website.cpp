@@ -6,8 +6,6 @@
 #include <thread>
 
 
-using namespace std;
-
 Website::Website(std::string name, int interval, std::vector<time_t> mTimeWindows)
     :mName(name)
     ,mMetricsMap()
@@ -24,15 +22,11 @@ void Website::run()
     using namespace std::chrono;
     auto timer = system_clock::now();
     isRunning = true;
-    int i(0);
     while(isRunning)
     {
         timer = system_clock::now();
         processPing(mPinger.ping());
         std::this_thread::sleep_for(mInterval - duration_cast<milliseconds>(system_clock::now() - timer));
-        i++;
-        if(i == 50)
-            isRunning = false;
     }
 }
 
@@ -97,7 +91,10 @@ Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
 {
     time_t currentTime = time(0);
+    std::cout << mPingList.size() << std::endl;
     auto oldestPing = mMetricsMap[timeWindow].getOldestPing();
+    if(mMetricsMap[timeWindow].shouldInitialize())
+        oldestPing = mPingList.begin();
     checkOldestPing(oldestPing, timeWindow, currentTime);
     for(auto ite = oldestPing; ite != mPingList.end(); ite++)
     {
@@ -130,6 +127,11 @@ void Website::checkOldestPing(std::list<Ping>::iterator& pingIte, time_t timeWin
     }
     if (changed)
         pingIte = iter;
+}
+
+void Website::stopRunning()
+{
+    isRunning = false;
 }
 
 

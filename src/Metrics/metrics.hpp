@@ -33,6 +33,7 @@ public:
     std::list<Ping>::iterator& getOldestPing();
     void deletePing(Ping ping);
     void updateOldMetrics(const std::list<Ping>& pingList);
+    bool shouldInitialize();
 
 private:
     void updateMin(const std::list<Ping>& pingList);
@@ -42,6 +43,7 @@ private:
     Data mData;
     bool minToUpdate;
     bool maxToUpdate;
+    bool initialized;
     std::list<Ping>::iterator mOldestPing;
 };
 
