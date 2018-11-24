@@ -4,10 +4,6 @@ include_directories(${CURSES_INCLUDE_DIR})
 find_package(Threads REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
 
-enable_testing()
-find_package(GTest REQUIRED)
-include_directories(${GTEST_INCLUDE_DIR})
-
 file(
         GLOB_RECURSE
         sources
