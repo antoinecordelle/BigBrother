@@ -102,7 +102,8 @@ void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
     lock_guard<mutex> lock(mListLock);
     if(!mMetricsMap[timeWindow]->shouldInitialize())
     {
-        mMetricsMap[timeWindow]->setInitialized();
+        if(mPingList.size() != 0)
+            mMetricsMap[timeWindow]->setInitialized();
         mMetricsMap[timeWindow]->setOldestPing(mPingList.begin());
     }
     auto oldestPing = mMetricsMap[timeWindow]->getOldestPing();
