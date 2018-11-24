@@ -6,6 +6,8 @@ class Dashboard
 {
 public:
     Dashboard();
+
+
 };
 
 #endif // DASHBOARD_HPP

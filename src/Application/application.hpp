@@ -2,6 +2,7 @@
 #define APPLICATION_HPP
 
 #include "../Website/website.hpp"
+#include "../Dashboard/dashboard.hpp"
 #include <vector>
 #include <thread>
 
@@ -19,6 +20,7 @@ private:
 private:
     std::vector<std::unique_ptr<Website>> mWebsites;
     std::vector<std::thread> mThreads;
+    Dashboard mDashboard;
 };
 
 #endif // APPLICATION_HPP

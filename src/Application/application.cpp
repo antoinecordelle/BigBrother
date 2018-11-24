@@ -13,6 +13,7 @@ Application::Application()
     mWebsites.push_back(unique_ptr<Website>(new Website("google.com", 250, {10, 60})));
 }
 
+
 void Application::run()
 {
     launchThreads();
