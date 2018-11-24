@@ -6,6 +6,7 @@
 #include <vector>
 #include <thread>
 
+
 class Application
 {
 public:
@@ -16,6 +17,9 @@ private:
     void launchThreads();
     void stopThreads();
     void monitor();
+    void initialize();
+    void loadDefaultWebsites();
+    void addWebsite(std::string url, int pingInterval);
 
 private:
     std::vector<std::unique_ptr<Website>> mWebsites;
