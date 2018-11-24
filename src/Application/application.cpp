@@ -10,10 +10,11 @@
 using namespace std;
 
 Application::Application()
-    :mTimeWindows({10,60})
+    :mAlertWindow(10)
+    ,mTimeWindows({10, 60})
+    ,mCheckIntervals({1, 10})
     ,mCycleCounter(0)
 {
-    sort(mTimeWindows.begin(), mTimeWindows.end());
 }
 
 
@@ -27,6 +28,7 @@ void Application::initialize()
         else
             addWebsite(ite->first, ite->second);
     }
+    mAlertHandler.initializeStatusMap(mWebsites);
 }
 
 void Application::loadDefaultWebsites()
@@ -38,7 +40,7 @@ void Application::loadDefaultWebsites()
 void Application::addWebsite(string url, int pingInterval)
 {
     //Websites on smart_pointers as Websites are non-copyable (Websites own a non-copyable mutex)
-    mWebsites.push_back(unique_ptr<Website>(new Website(url, pingInterval, mTimeWindows)));
+    mWebsites.push_back(WebsitePtr(new Website(url, pingInterval, mTimeWindows)));
     mData.push_back(map<time_t, Data>());
 }
 
@@ -84,18 +86,35 @@ void Application::monitor()
         {
             mCycleCounter++;
             timer = system_clock::now();
-            for(int websitePos = 0; websitePos != mWebsites.size(); websitePos++)
-            {
-                for(auto windowIte = mTimeWindows.begin(); windowIte != mTimeWindows.end(); windowIte ++)
-                {
-                    if(mCycleCounter % 1 == 0)
-                        getMetrics(websitePos, *windowIte);
-                }
-            }
-            mDashboard.retrieveData(mData);
+            checkWebsites();
+            mDashboard.retrieveData(mData, mAlerts);
             std::this_thread::sleep_for(milliseconds(1000)- duration_cast<milliseconds>(system_clock::now() - timer));
         }
     }
+}
+
+void Application::checkWebsites()
+{
+    for(int websitePos = 0; websitePos != mWebsites.size(); websitePos++)
+    {
+        for(int windowIte = 0; windowIte != mTimeWindows.size(); windowIte ++)
+        {
+            if(mCycleCounter % mCheckIntervals[windowIte] == 0)
+            {
+                getMetrics(websitePos, mTimeWindows[windowIte]);
+                if(mTimeWindows[windowIte] == mAlertWindow)
+                {
+                    checkAlerts(mData[websitePos][mTimeWindows[windowIte]]);
+                }
+            }
+        }
+    }
+}
+
+void Application::checkAlerts(Data data)
+{
+    if(mAlertHandler.shouldGetAlert(data))
+        mAlerts.push_back(mAlertHandler.getAlert(data));
 }
 
 void Application::getMetrics(int websitePos, time_t timeWindow)

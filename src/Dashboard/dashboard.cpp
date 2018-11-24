@@ -68,20 +68,27 @@ void Dashboard::run()
 void Dashboard::displayData()
 {
     clear();
+    Data data;
     for(auto ite = mData.begin(); ite != mData.end(); ite++)
     {
         for(auto dataIte = ite->begin(); dataIte != ite->end(); dataIte ++)
         {
-            printw((to_string(dataIte->first) + "  " + dataIte->second.name + "\n").c_str());
+            data = dataIte->second;
+            printw(("Past " + to_string(dataIte->first) + "sec :  " + data.name + " : " + to_string(data.avgTime) + "\n").c_str());
         }
+    }
+    for(auto ite = mAlerts.begin(); ite != mAlerts.end(); ite++)
+    {
+        printw(("Alert : " + ite->name + " has availibility : " + to_string(ite->availibility) + " at time : \n").c_str());
     }
     refresh();
     shouldRefresh = false;
 }
 
-void Dashboard::retrieveData(std::vector<std::map<time_t, Data>> data)
+void Dashboard::retrieveData(std::vector<std::map<time_t, Data>> data, std::vector<Alert> alerts)
 {
     shouldRefresh = true;
+    mAlerts = alerts;
     mData = data;
 }
 
