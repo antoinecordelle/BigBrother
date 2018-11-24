@@ -5,6 +5,7 @@
 #include <string>
 #include <atomic>
 #include <map>
+#include "ncurses.h"
 
 #include "../Alert/alertHandler.hpp"
 #include "../Metrics/metrics.hpp"
@@ -21,6 +22,7 @@ public:
 
 private:
     void displayData();
+    WINDOW* initializationBaseWindow(int height, int width, int startY, int startX, std::string text, bool center = false);
 
 private:
     std::atomic<bool> mIsRunning;

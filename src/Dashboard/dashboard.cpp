@@ -1,7 +1,6 @@
 #include "dashboard.hpp"
 #include "../Utility/utility.hpp"
 
-#include <ncurses.h>
 
 using namespace std;
 
@@ -13,30 +12,62 @@ Dashboard::Dashboard()
 
 vector<pair<string, int>> Dashboard::initializeWebsites()
 {
+    WINDOW* header;
+    WINDOW* input;
+    WINDOW* footer;
     initscr();
     keypad(stdscr, TRUE);
 
     vector<pair<string, int>> websites;
     string website;
     int pingInterval;
-
+    int currentLine(1);
+    refresh();
+    header = initializationBaseWindow(3, COLS, 0, 0, "Initialization", true);
+    footer = initializationBaseWindow(4, COLS, 0, LINES - 4, "Name of the website : default to default config, 0 to end");
+    mvwprintw(footer, 2, 1, "Check interval : 250 recommended");
+    wrefresh(footer);
+    input  = initializationBaseWindow(LINES - 3 - 4, COLS, 0, 3, "");
+    refresh();
     while(website != "0" && website != "default")
     {
-        printw("Name of the website to monitor (default to default config, 0 to end) : ");
-        website = Utility::getCursesStr();
+        mvwprintw(input, currentLine, 1, "Name of the website to monitor : ");
+        website = Utility::getCursesStr(input, currentLine++, 34);
         if(website == "default")
             websites.push_back(pair<string, int>("default", 0));
         else if(website != "0")
         {
-            printw("Check interval in ms (250 recommended) : ");
-            pingInterval = Utility::getCursesInt();
-            if(pingInterval <= 0 || pingInterval > 5000)
+            mvwprintw(input, currentLine, 1, "Check interval in ms : ");
+            pingInterval = Utility::getCursesInt(input, currentLine++, 24);
+            if(pingInterval <= 50 || pingInterval > 5000)
                 pingInterval = 250;
             websites.push_back(pair<string, int>(website, pingInterval));
         }
+        if(++currentLine + 1 >= LINES - 7)
+        {
+            wclear(input);
+            box(input, 0,0);
+            currentLine = 1;
+        }
     }
+    delwin(footer);
+    delwin(input);
+    delwin(header);
     endwin();
     return websites;
+}
+
+WINDOW* Dashboard::initializationBaseWindow(int height, int width, int startY, int startX, std::string text, bool center)
+{
+    WINDOW *win;
+    win = newwin(height, width, startX, startY);
+    box(win, 0 , 0);
+    if(center)
+        mvwprintw(win, 1, max(COLS/2 - 6, 0), text.c_str());
+    else
+        mvwprintw(win, 1, 1, text.c_str());
+    wrefresh(win);
+    return win;
 }
 
 
