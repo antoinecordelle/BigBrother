@@ -4,12 +4,16 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <algorithm>
+#include <ctime>
 
 using namespace std;
 
 Application::Application()
+    :mTimeWindows({10,60})
+    ,mCycleCounter(0)
 {
-
+    sort(mTimeWindows.begin(), mTimeWindows.end());
 }
 
 
@@ -34,7 +38,8 @@ void Application::loadDefaultWebsites()
 void Application::addWebsite(string url, int pingInterval)
 {
     //Websites on smart_pointers as Websites are non-copyable (Websites own a non-copyable mutex)
-    mWebsites.push_back(unique_ptr<Website>(new Website(url, pingInterval, {10, 60})));
+    mWebsites.push_back(unique_ptr<Website>(new Website(url, pingInterval, mTimeWindows)));
+    mData.push_back(map<time_t, Data>());
 }
 
 
@@ -52,9 +57,10 @@ void Application::run()
 
 void Application::launchThreads()
 {
+    mDashboardThread = thread(&Dashboard::run, &mDashboard);
     for(unsigned int i = 0; i != mWebsites.size(); i++)
     {
-        mThreads.push_back(thread(&Website::run, mWebsites[i].get()));
+        mWebsiteThreads.push_back(thread(&Website::run, mWebsites[i].get()));
     }
 }
 
@@ -63,26 +69,45 @@ void Application::stopThreads()
     for(unsigned int i = 0; i != mWebsites.size(); i++)
     {
         mWebsites[i]->stopRunning();
-        mThreads[i].join();
+        mWebsiteThreads[i].join();
     }
+    mDashboardThread.join();
 }
 
 void Application::monitor()
 {
-    int i(0);
+    using namespace std::chrono;
+    auto timer = system_clock::now();
     if(mWebsites.size() != 0)
     {
-        while(i++ < 1000)
+        while(mDashboard.isRunning())
         {
-            this_thread::sleep_for(chrono::milliseconds(1000));
-            for(int i = 0; i != mWebsites.size(); i++)
+            mCycleCounter++;
+            timer = system_clock::now();
+            for(int websitePos = 0; websitePos != mWebsites.size(); websitePos++)
             {
-                Data ok10 = mWebsites[i]->getMetrics(10, false);
-                Data ok60 = mWebsites[i]->getMetrics(60, true);
-                cout << "10sec : " << ok10.pingCount << " " << ok10.avgTime << " " << ok10.maxTime << " " << ok10.minTime << "  " << ok10.hostUnreachableCount << endl;
-                cout << "60sec : " << ok60.pingCount << " " << ok60.avgTime << " " << ok60.maxTime << " " << ok60.minTime << "  " << ok60.hostUnreachableCount << endl << endl;
+                for(auto windowIte = mTimeWindows.begin(); windowIte != mTimeWindows.end(); windowIte ++)
+                {
+                    if(mCycleCounter % 1 == 0)
+                        getMetrics(websitePos, *windowIte);
+                }
             }
+            mDashboard.retrieveData(mData);
+            std::this_thread::sleep_for(milliseconds(1000)- duration_cast<milliseconds>(system_clock::now() - timer));
         }
     }
-
 }
+
+void Application::getMetrics(int websitePos, time_t timeWindow)
+{
+    bool eraseOldPings = (timeWindow == mTimeWindows[mTimeWindows.size() - 1]);
+    mData[websitePos][timeWindow] = mWebsites[websitePos]->getMetrics(timeWindow, eraseOldPings);
+    if(eraseOldPings)
+        mCycleCounter = 0;
+}
+
+
+
+
+
+

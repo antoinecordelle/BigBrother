@@ -21,13 +21,14 @@ struct Data {
     double maxTime = 0.f;
     double minTime = 1.79769e+308;
     double avgTime = 0.f;
+    std::string name;
 };
 
 class Metrics
 {
 public:
     Metrics();
-    Metrics(std::list<Ping>::iterator ite);
+    Metrics(std::list<Ping>::iterator ite, std::string name);
 
     void updateMetrics(int codeResponse, double time);
     void updateMetrics(int codeResponse);

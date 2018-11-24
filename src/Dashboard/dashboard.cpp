@@ -40,6 +40,48 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
 }
 
 
+bool Dashboard::isRunning()
+{
+    return mIsRunning;
+}
 
+void Dashboard::run()
+{
+    mIsRunning = true;
+    initscr();
+    clear();
+    refresh();
+    keypad(stdscr, TRUE);
+    timeout(1000);
+    int input;
+    while(isRunning())
+    {
+        input = getch();
+        if(input == KEY_F(1))
+            mIsRunning = false;
+        if(shouldRefresh)
+            displayData();
+    }
+    endwin();
+}
 
+void Dashboard::displayData()
+{
+    clear();
+    for(auto ite = mData.begin(); ite != mData.end(); ite++)
+    {
+        for(auto dataIte = ite->begin(); dataIte != ite->end(); dataIte ++)
+        {
+            printw((to_string(dataIte->first) + "  " + dataIte->second.name + "\n").c_str());
+        }
+    }
+    refresh();
+    shouldRefresh = false;
+}
+
+void Dashboard::retrieveData(std::vector<std::map<time_t, Data>> data)
+{
+    shouldRefresh = true;
+    mData = data;
+}
 

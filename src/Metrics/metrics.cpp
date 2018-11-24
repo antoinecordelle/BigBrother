@@ -18,13 +18,13 @@ Metrics::Metrics()
 
 }
 
-Metrics::Metrics(std::list<Ping>::iterator ite)
+Metrics::Metrics(std::list<Ping>::iterator ite, std::string aName)
     :minToUpdate(false)
     ,maxToUpdate(false)
     ,mOldestPing(ite)
     ,initialized(false)
 {
-
+    mData.name = aName;
 }
 
 void Metrics::updateMetrics(int codeResponse, double time)

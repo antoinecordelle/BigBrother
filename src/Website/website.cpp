@@ -15,8 +15,14 @@ Website::Website(string name, int interval, vector<time_t> mTimeWindows)
     ,isRunning(true)
 {
     for(auto ite = mTimeWindows.begin(); ite != mTimeWindows.end(); ite++)
-        mMetricsMap[*ite] = unique_ptr<Metrics>(new Metrics(mPingList.begin()));
+        mMetricsMap[*ite] = unique_ptr<Metrics>(new Metrics(mPingList.begin(), name));
 }
+
+const std::string Website::getName()
+{
+    return mName;
+}
+
 
 void Website::run()
 {
