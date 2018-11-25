@@ -20,10 +20,10 @@ Metrics::Metrics()
 
 }
 
-Metrics::Metrics(std::list<Ping>::iterator ite, std::string aName)
+Metrics::Metrics(std::list<Ping>::iterator pingIte, std::string aName)
     :minToUpdate(false)
     ,maxToUpdate(false)
-    ,mOldestPing(ite)
+    ,mOldestPing(pingIte)
     ,initialized(false)
 {
     mData.name = aName;
@@ -68,6 +68,8 @@ void Metrics::setOldestPing(std::list<Ping>::iterator newOldestPing)
 
 void Metrics::removePing(Ping ping)
 {
+    // Removes a ping and determines if we will have to update the min or max in the updated metrics
+    // Called by Website::deleteOldMetrics
     std::lock_guard<std::mutex> lock(mMetricsLock);
     mData.pingCount--;
     if(ping.codeResponse != 0)
@@ -84,6 +86,7 @@ void Metrics::removePing(Ping ping)
 
 void Metrics::updateOldMetrics(const std::list<Ping>& pingList)
 {
+    // Updates the min and max if needed (specified by removePing)
     std::lock_guard<std::mutex> lock(mMetricsLock);
     if(minToUpdate)
         updateMin(pingList);

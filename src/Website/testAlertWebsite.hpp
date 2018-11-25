@@ -3,6 +3,7 @@
 
 #include "website.hpp"
 
+/// Class using a fakewebsite to test the Alert Logic. Uses a TestAlertPinger
 class TestAlertWebsite : public Website
 {
 public:
