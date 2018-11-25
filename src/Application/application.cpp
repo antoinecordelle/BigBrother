@@ -22,6 +22,7 @@ Application::Application()
 
 void Application::initialize()
 {
+    // Initialization of the websites through the user interface
     auto websites = mDashboard.initializeWebsites();
     for (auto ite = websites.begin(); ite != websites.end(); ite++)
     {
@@ -30,6 +31,7 @@ void Application::initialize()
         else
             addWebsite(ite->first, ite->second);
     }
+    // Initialization of the AlertHandler and the Dashboard main menu
     mAlertHandler.initializeStatusMap(mWebsites);
     mStatusMap = mAlertHandler.getStatusMap();
     mDashboard.retrieveData(mData, mAlerts, mStatusMap);
@@ -69,8 +71,10 @@ void Application::run()
 
 void Application::launchThreads()
 {
+    // Launch the dashboard main menu in its thread
     mDashboard.setRunning();
     mDashboardThread = thread(&Dashboard::run, &mDashboard);
+    // Launch the different websites : each website will ping from its thread
     for(unsigned int i = 0; i != mWebsites.size(); i++)
     {
         mWebsiteThreads.push_back(thread(&Website::run, mWebsites[i].get()));
@@ -79,6 +83,7 @@ void Application::launchThreads()
 
 void Application::stopThreads()
 {
+    // Shuts down the different threads (websites and dashboard)
     for(unsigned int i = 0; i != mWebsites.size(); i++)
     {
         mWebsites[i]->stopRunning();
@@ -95,6 +100,7 @@ void Application::monitor()
     {
         while(mDashboard.isRunning())
         {
+            // Each loop will last 1 sec
             mCycleCounter++;
             timer = system_clock::now();
             checkWebsites();
@@ -106,6 +112,7 @@ void Application::monitor()
 
 void Application::checkWebsites()
 {
+    // Checks the websites, retrieving their data, and checks for alerts
     for(int websitePos = 0; websitePos != mWebsites.size(); websitePos++)
     {
         for(int windowIte = 0; windowIte != mTimeWindows.size(); windowIte ++)
@@ -133,6 +140,7 @@ void Application::checkAlerts(Data data)
 
 void Application::getMetrics(int websitePos, time_t timeWindow)
 {
+    // If the timeWindow is the last one, we can erase the ping from the website's pingList
     bool eraseOldPings = (timeWindow == mTimeWindows[mTimeWindows.size() - 1]);
     mData[websitePos][timeWindow] = mWebsites[websitePos]->getMetrics(timeWindow, eraseOldPings);
     if(eraseOldPings)

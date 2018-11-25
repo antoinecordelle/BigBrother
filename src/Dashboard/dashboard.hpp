@@ -65,17 +65,17 @@ private:
     std::atomic<bool> mIsRunning;
     std::atomic<bool> shouldRefresh;
 
-    // Represents the data displayed : for each website : map of the datas for each timeWindow
+    /// Represents the data displayed : for each website : map of the datas for each timeWindow
     std::vector<std::map<time_t, Data>> mData;
     std::vector<std::string> mWebsitePos;
 
-    // StatusMap of the websites (url, status). true if website is up, false if down
+    /// StatusMap of the websites (url, status). true if website is up, false if down
     StatusMap mStatusMap;
 
-    // Iterator to select the focused and detailed website
+    /// Iterator to select the focused and detailed website
     StatusMap::iterator mFocusWebsite;
 
-    // alerts : vector of all the alerts sent by the AlertHandler to application
+    /// alerts : vector of all the alerts sent by the AlertHandler to application
     std::vector<Alert> mAlerts;
     time_t mAlertWindow;
 
