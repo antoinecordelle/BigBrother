@@ -27,7 +27,7 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
     int currentLine(1);
     refresh();
     header = initializationBaseWindow(3, COLS, 0, 0, "Initialization", true);
-    footer = initializationBaseWindow(4, COLS, LINES - 4, 0, "Name of the website : \"default\" to default config, \"0\" to end");
+    footer = initializationBaseWindow(4, COLS, LINES - 4, 0, "Url of the website : \"default\" to default config, \"0\" to end");
     mvwprintw(footer, 2, 1, "Ping interval : 250ms recommended. Invalid character set to 250.");
     wrefresh(footer);
     input = initializationBaseWindow(LINES - 3 - 4, COLS, 3, 0, "");
@@ -37,7 +37,9 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
     {
         mvwprintw(input, currentLine, 1, "Website to monitor : ");
         website = Utility::getCursesStr(input, currentLine++, 22);
-        if(website == "default")
+        if(website.find(' ') != string::npos)
+            mvwprintw(input, currentLine, 1, "Invalid URL");
+        else if(website == "default")
             websites.push_back(pair<string, int>("default", 0));
         else if(website != "0")
         {
