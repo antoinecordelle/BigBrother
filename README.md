@@ -33,7 +33,7 @@ The program requires :
 
 The program has been tested on both Linux and MacOS. It will not work with Windows as Ncurses is a Unix type library, that Windows does not support. If that does raise any issue, I am at your disposal to find a solution.
 
-## Installation and run :
+## Installation :
 
 Follow the 
 
@@ -43,36 +43,36 @@ Follow the
 ```
 apt-get install cmake
 apt-get install ncurses
-apt-get install doxygen		# to generate doc
+apt-get install doxygen   # to generate doc
 ```
 **Google Test installation**
-'''
+```
 cd /usr/src/gtest
 cmake CMakeLists.txt
 make
 cp *.a /usr/lib
-'''
+```
  
 **Project building**
-'''
+```
 cd (project)
 mkdir build
 cd build
 cmake ..
 make
-'''
+```
 
 ### MacOS
 
 **Libs installation**
-'''
+```
 brew install cmake
 brew install ncurses
-brew install doxygen
-'''
+brew install doxygen   # to generate doc
+```
 
 **Google Test Installation**
-'''
+```
 git clone https://github.com/google/googletest
 cd googletest
 mkdir build
@@ -80,38 +80,38 @@ cd build
 cmake ..
 make
 make install
-'''
+```
 
 **Project building**
-'''
+```
 cd (project)
 mkdir build
 cd build
 cmake ..
 make
-'''
+```
 
 ## Run
 
 To run tests for the alert logic : 
 In the (project)/build folder : 
-''' ./tests/runTests'''
+``` ./tests/runTests```
 
 To run the program :
 In the (project)/build folder : 
-'''./src/app'''
+```./src/app```
 
 
 ## Documentation
 
 To generate the documentation :
-Install doxygen : '''apt-get install doxygen''' or '''brew install doxygen'''
+Install doxygen : ```apt-get install doxygen``` or ```brew install doxygen```
 
 Generation : in (project)/build : 
-'''
+```
 cmake ..
 make doc
-'''
+```
 
 To access the documentation : Open ./doc/index.html
 
