@@ -1,10 +1,10 @@
 #include "testAlertPinger.hpp"
 
+
 TestAlertPinger::TestAlertPinger(std::string )
     :Pinger("google.com")
     ,mCounter(0)
 {
-
 }
 
 std::string TestAlertPinger::ping()
