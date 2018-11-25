@@ -19,7 +19,7 @@ void AlertHandler::initializeStatusMap(const std::vector<WebsitePtr>& websites)
 {
     for(unsigned int i = 0; i != websites.size(); i++)
     {
-        mStatusMap[websites[i]->getName()] =  true;
+        mStatusMap[websites[i]->getName()] = true;
     }
 }
 

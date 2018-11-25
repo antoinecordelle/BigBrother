@@ -1,5 +1,6 @@
 #include "dashboard.hpp"
 #include "../Utility/utility.hpp"
+#include <ctime>
 
 
 using namespace std;
@@ -94,6 +95,7 @@ void Dashboard::run()
 
     mIsRunning = true;
     initscr();
+    curs_set(0);
     clear();
     refresh();
     noecho();
@@ -107,10 +109,6 @@ void Dashboard::run()
     timeout(1000);
     while(isRunning())
     {
-        mvwprintw(alertDisplay, 1, 0, to_string(counter++).c_str());
-        mvwprintw(websiteDetails, 1, 0, to_string(mStatusMap.size()).c_str());
-        wrefresh(websiteDetails);
-        wrefresh(alertDisplay);
         input = getch();
         switch(input)
         {
@@ -131,9 +129,9 @@ void Dashboard::run()
         if(shouldRefresh)
         {
             shouldRefresh = false;
-            displayMenu(websitesMenu);
             //displayDetails(websiteDetails);
-            //displayAlerts(alertDisplay);
+            displayAlerts(alertDisplay);
+            displayMenu(websitesMenu);
         }
     }
 
@@ -179,9 +177,32 @@ void Dashboard::displayAlerts(WINDOW* alertDisplay)
     std::lock_guard<std::mutex> lock(mDashboardLock);
     wclear(alertDisplay);
     alertDisplay = initializationBaseWindow(LINES/2 - 1, COLS, LINES/2, 0, "Alerts : ", false, true, true);
-
+    for(unsigned int i = 0; i != mAlerts.size(); i++)
+    {
+        displayOneAlert(alertDisplay, mAlerts[i], i);
+    }
     wrefresh(alertDisplay);
 }
+
+void Dashboard::displayOneAlert(WINDOW* alertDisplay, const Alert& alert, int position)
+{
+    char buffer [80];
+    time_t timer(alert.timer);
+    std::time(&timer);
+    struct tm* timeinfo = localtime(&timer);
+    strftime (buffer,80,"%D %I:%M%p  ",timeinfo);
+    mvwprintw(alertDisplay, position + 1, 1, buffer);
+    if(alert.availibility < 0.8)
+    {
+        mvwprintw(alertDisplay, position + 1, 20, (" DOWN    " + alert.name).c_str());
+    }
+    else
+    {
+        mvwprintw(alertDisplay, position + 1, 20, (" UP     " + alert.name).c_str());
+    }
+    mvwprintw(alertDisplay, position + 1, 50, ("Availibility : " + to_string(alert.availibility)).c_str());
+}
+
 /*
 void Dashboard::displayData()
 {

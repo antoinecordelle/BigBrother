@@ -28,6 +28,7 @@ private:
     void displayMenu(WINDOW* websitesMenu);
     void displayDetails(WINDOW* websiteDetails);
     void displayAlerts(WINDOW* alertDisplay);
+    void displayOneAlert(WINDOW* alertDisplay, const Alert& alert, int position);
     WINDOW* initializationBaseWindow(int height, int width, int startY, int startX, std::string text, bool center = false, bool withBox = true, bool title = false);
     void focusWebsite(bool next);
 

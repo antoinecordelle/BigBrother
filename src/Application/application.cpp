@@ -37,7 +37,7 @@ void Application::loadDefaultWebsites()
 {
     addWebsite("google.com", 250);
     addWebsite("datadoghq.com", 250);
-    addWebsite("edzedeaz", 250);
+    addWebsite("fakewebsite", 250);
 }
 
 void Application::addWebsite(string url, int pingInterval)
