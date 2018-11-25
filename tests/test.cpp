@@ -10,7 +10,7 @@ TEST ( TestUpdateOldMetrics, OldMetrics1)
     std::list<Ping> pingList;
     pingList.push_back(Ping(0, 0, 1.f));
 
-    Metrics metrics(pingList.begin());
+    Metrics metrics(pingList.begin(), "test");
     metrics.updateMetrics(0, 1.f);
     metrics.updateOldMetrics(pingList);
 
