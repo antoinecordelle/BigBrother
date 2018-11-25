@@ -22,6 +22,7 @@ public:
     std::vector<std::pair<std::string, int>> initializeWebsites();
     void run();
     bool isRunning();
+    void setRunning();
     void retrieveData(std::vector<std::map<time_t, Data>> data, std::vector<Alert> alerts, StatusMap statusMap);
 
 private:

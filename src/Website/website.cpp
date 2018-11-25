@@ -28,7 +28,6 @@ void Website::run()
 {
     using namespace std::chrono;
     auto timer = system_clock::now();
-    isRunning = true;
     while(isRunning)
     {
         timer = system_clock::now();
@@ -92,6 +91,7 @@ void Website::updateMetrics(int codeResponse, double timer)
 
 Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 {
+    lock_guard<mutex> lock(mListLock);
     deleteOldMetrics(timeWindow, deleteOldPings);
     return mMetricsMap[timeWindow]->getMetrics();
 }
@@ -99,7 +99,6 @@ Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
 {
     time_t currentTime = time(0);
-    lock_guard<mutex> lock(mListLock);
     if(!mMetricsMap[timeWindow]->shouldInitialize())
     {
         if(mPingList.size() != 0)
@@ -126,6 +125,7 @@ void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
         mPingList.erase(mPingList.begin(), oldestPing);
     }
     mMetricsMap[timeWindow]->updateOldMetrics(mPingList);
+
 }
 
 

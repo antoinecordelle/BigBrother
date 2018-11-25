@@ -37,7 +37,7 @@ void Application::initialize()
 void Application::loadDefaultWebsites()
 {
     addWebsite("google.com", 250);
-    addWebsite("datadoghq.com", 250);
+    addWebsite("datadoghq.com", 500);
     addWebsite("fakewebsite", 250);
 }
 
@@ -63,6 +63,7 @@ void Application::run()
 
 void Application::launchThreads()
 {
+    mDashboard.setRunning();
     mDashboardThread = thread(&Dashboard::run, &mDashboard);
     for(unsigned int i = 0; i != mWebsites.size(); i++)
     {

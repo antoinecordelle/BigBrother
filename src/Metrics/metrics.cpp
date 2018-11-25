@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+using namespace std;
+
 Ping::Ping(std::time_t aTime, int aCode, double aTimeDelay)
     :time(aTime)
     ,codeResponse(aCode)
@@ -39,7 +41,7 @@ void Metrics::updateMetrics(int codeResponse, double time)
 }
 
 void Metrics::updateMetrics(int codeResponse)
-{   
+{
     std::lock_guard<std::mutex> lock(mMetricsLock);
     mData.pingCount++;
     if(codeResponse != 0)
@@ -124,7 +126,6 @@ bool Metrics::shouldInitialize()
 
 void Metrics::setInitialized()
 {
-    std::lock_guard<std::mutex> lock(mMetricsLock);
     initialized = true;
 }
 

@@ -49,7 +49,7 @@ private:
     Data mData;
     bool minToUpdate;
     bool maxToUpdate;
-    bool initialized;
+    std::atomic<bool> initialized;
     std::list<Ping>::iterator mOldestPing;
     std::mutex mMetricsLock;
 };

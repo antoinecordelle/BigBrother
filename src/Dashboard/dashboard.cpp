@@ -7,6 +7,7 @@ using namespace std;
 
 Dashboard::Dashboard(time_t alertWindow)
     :mAlertWindow(alertWindow)
+    ,mIsRunning(true)
 {
 
 }
@@ -90,6 +91,12 @@ bool Dashboard::isRunning()
     return mIsRunning;
 }
 
+void Dashboard::setRunning()
+{
+    mIsRunning = true;
+}
+
+
 void Dashboard::run()
 {
     WINDOW* footer;
@@ -97,7 +104,6 @@ void Dashboard::run()
     WINDOW* websiteDetails;
     WINDOW* alertDisplay;
 
-    mIsRunning = true;
     mFocusWebsite = mStatusMap.begin();
     initscr();
     curs_set(0);
