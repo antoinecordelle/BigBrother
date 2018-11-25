@@ -1,4 +1,5 @@
 #include "application.hpp"
+#include "../Website/testAlertWebsite.hpp"
 
 #include <string>
 #include <iostream>
@@ -44,7 +45,12 @@ void Application::loadDefaultWebsites()
 void Application::addWebsite(string url, int pingInterval)
 {
     //Websites on smart_pointers as Websites are non-copyable (Websites own a non-copyable mutex)
-    mWebsites.push_back(WebsitePtr(new Website(url, pingInterval, mTimeWindows)));
+    if(url == "fakewebsite")
+        mWebsites.push_back(WebsitePtr(new TestAlertWebsite(url, pingInterval, mTimeWindows)));
+    else
+    {
+        mWebsites.push_back(WebsitePtr(new Website(url, pingInterval, mTimeWindows)));
+    }
     mData.push_back(map<time_t, Data>());
 }
 

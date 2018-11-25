@@ -28,7 +28,7 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
     int currentLine(1);
     refresh();
     header = initializationBaseWindow(3, COLS, 0, 0, "Initialization", true);
-    footer = initializationBaseWindow(4, COLS, LINES - 4, 0, "Url of the website : \"default\" to default config, \"0\" to end");
+    footer = initializationBaseWindow(4, COLS, LINES - 4, 0, "Url : \"default\" to default config, \"0\" to end, \"fakewebsite\" to test alert");
     mvwprintw(footer, 2, 1, "Ping interval : 250ms recommended. Invalid character set to 250.");
     wrefresh(footer);
     input = initializationBaseWindow(LINES - 3 - 4, COLS, 3, 0, "");
@@ -237,7 +237,7 @@ void Dashboard::displayOneAlert(WINDOW* alertDisplay, const Alert& alert, int po
     time_t timer(alert.timer);
     std::time(&timer);
     struct tm* timeinfo = localtime(&timer);
-    strftime (buffer,80,"%D %I:%M%p  ",timeinfo);
+    strftime (buffer,80,"%D %I:%M%p  ", timeinfo);
     mvwprintw(alertDisplay, position + 1, 1, buffer);
     if(alert.availibility < 0.8)
     {
@@ -245,7 +245,7 @@ void Dashboard::displayOneAlert(WINDOW* alertDisplay, const Alert& alert, int po
     }
     else
     {
-        mvwprintw(alertDisplay, position + 1, 20, (" UP     " + alert.name).c_str());
+        mvwprintw(alertDisplay, position + 1, 20, (" UP      " + alert.name).c_str());
     }
     mvwprintw(alertDisplay, position + 1, 50, ("Availibility : " + to_string(alert.availibility)).c_str());
 }

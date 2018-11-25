@@ -9,6 +9,7 @@
 #include <chrono>
 #include <mutex>
 #include <atomic>
+#include <memory>
 
 #include "../Pinger/pinger.hpp"
 #include "../Metrics/metrics.hpp"
@@ -37,11 +38,12 @@ private:
     const std::string mName;
     std::list<Ping> mPingList;
     std::map<time_t, std::unique_ptr<Metrics>> mMetricsMap;
-    Pinger mPinger;
     const std::chrono::milliseconds mInterval;
     std::atomic<bool> isRunning;
     std::mutex mListLock;
 
+protected:
+    std::unique_ptr<Pinger> mPinger;
 };
 
 #endif // WEBSITE_HPP

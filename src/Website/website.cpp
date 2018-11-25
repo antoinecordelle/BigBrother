@@ -10,7 +10,7 @@ using namespace std;
 Website::Website(string name, int interval, vector<time_t> mTimeWindows)
     :mName(name)
     ,mMetricsMap()
-    ,mPinger(name)
+    ,mPinger(new Pinger(name))
     ,mInterval(interval)
     ,isRunning(true)
 {
@@ -31,7 +31,7 @@ void Website::run()
     while(isRunning)
     {
         timer = system_clock::now();
-        processPing(mPinger.ping());
+        processPing(mPinger->ping());
         std::this_thread::sleep_for(mInterval - duration_cast<milliseconds>(system_clock::now() - timer));
     }
 }

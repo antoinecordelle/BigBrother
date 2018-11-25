@@ -9,11 +9,11 @@ class Pinger
 public:
     Pinger(std::string name);
 
-    std::string ping();
+    virtual std::string ping();
 
 
 private:
-    const std::string mCommand;
+    std::string mCommand;
 };
 
 #endif // PINGER_H
