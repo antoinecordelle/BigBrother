@@ -121,7 +121,7 @@ void Dashboard::run()
     footer = initializationBaseWindow(1, COLS, LINES - 1, 0, "Press F1 to leave. Press the up and down arrows to navigate through websites", false, false, false);
     websitesMenu = initializationBaseWindow(LINES/2 + 1, COLS/3, 0, 0, "Websites list :", false, false);
     websiteDetails = initializationBaseWindow(LINES/2 + 1, 2*COLS/3 + 1 , 0, COLS/3, "Website details :", false, true, true);
-    alertDisplay = initializationBaseWindow(LINES/2 - 2, COLS, LINES/2 +1, 0, "Alerts : ", false, true, true);
+    alertDisplay = initializationBaseWindow(LINES/2 - 2, COLS, LINES/2 +1, 0, "Alerts (metrics from last 120s) : ", false, true, true);
     int input;
     int counter;
     timeout(1000);
@@ -228,7 +228,7 @@ void Dashboard::displayAlerts(WINDOW* alertDisplay)
 {
     std::lock_guard<std::mutex> lock(mDashboardLock);
     wclear(alertDisplay);
-    alertDisplay = initializationBaseWindow(LINES/2 - 2, COLS, LINES/2 +1, 0, "Alerts : ", false, true, true);
+    alertDisplay = initializationBaseWindow(LINES/2 - 2, COLS, LINES/2 +1, 0, "Alerts (metrics from last 120s) : ", false, true, true);
     int position(0);
     for(unsigned int i = max(0, (int)mAlerts.size() - 8); i != mAlerts.size(); i++)
     {
