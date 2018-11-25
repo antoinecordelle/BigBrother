@@ -209,9 +209,10 @@ void Dashboard::displayAlerts(WINDOW* alertDisplay)
     wclear(alertDisplay);
     box(alertDisplay, 0 , 0);
     mvwprintw(alertDisplay, 0, 1, "Alerts : ");
-    for(unsigned int i = 0; i != mAlerts.size(); i++)
+    int position(0);
+    for(unsigned int i = max(0, (int)mAlerts.size() - 8); i != mAlerts.size(); i++)
     {
-        displayOneAlert(alertDisplay, mAlerts[i], i);
+        displayOneAlert(alertDisplay, mAlerts[i], position++);
     }
     wrefresh(alertDisplay);
 }
