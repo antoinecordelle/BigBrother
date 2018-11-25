@@ -5,7 +5,7 @@
 #include <memory>
 
 
-/// Pinger : Class used as an engine to ping websites and return responses as strings
+/// Class used as an engine to ping websites and return responses as strings
 class Pinger
 {
 public:

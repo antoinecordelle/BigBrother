@@ -4,6 +4,8 @@
 #include <string>
 #include "ncurses.h"
 
+
+/// Static utility class to ease the int and string user input through ncurses
 class Utility
 {
 public:

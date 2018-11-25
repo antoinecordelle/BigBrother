@@ -14,6 +14,7 @@ Website::Website(string name, int interval, vector<time_t> mTimeWindows)
     ,mInterval(interval)
     ,isRunning(true)
 {
+    // Initializing the metrics by timeWindow, initializing the rolling iterators through pingList (see Metrics/metrics.hpp)
     for(auto ite = mTimeWindows.begin(); ite != mTimeWindows.end(); ite++)
         mMetricsMap[*ite] = unique_ptr<Metrics>(new Metrics(mPingList.begin(), name));
 }
@@ -26,6 +27,7 @@ const std::string Website::getName()
 
 void Website::run()
 {
+    // Sending and processing pings every mInterval ms
     using namespace std::chrono;
     auto timer = system_clock::now();
     while(isRunning)
@@ -40,12 +42,14 @@ void Website::processPing(std::string pingResponse)
 {
     try
     {
+        // Code response 0 : successful ping
         int codeResponse = getResponseCode(pingResponse);
         if(codeResponse == 0)
         {
             double time(getResponseTime(pingResponse));
             updateMetrics(codeResponse, time);
         }
+        // Code response 1 or 2 : ping error
         else
             updateMetrics(codeResponse);
     } catch (const invalid_argument& error)
@@ -53,12 +57,14 @@ void Website::processPing(std::string pingResponse)
         cerr << "Dropping ping : Invalid argument: " << error.what() << '\n';
     } catch (const UndocumentedErrorCodeException& error)
     {
-        cerr << "Dropping ping : " << error.what() << '\n';
+        // Code response different from 1/2/3 : unexpected response
+        cerr << "Dropping ping : Unexpected Error Code : " << error.what() << '\n';
     }
 }
 
 int Website::getResponseCode(const string& pingResponse) const
 {
+    // PingResponse ends by the code response : "echo $?" in the ping command
     int codeResponse = stoi(pingResponse.substr(pingResponse.size()-3));
     if(codeResponse != 0 && codeResponse != 1 && codeResponse != 2)
         throw UndocumentedErrorCodeException(codeResponse);
@@ -75,6 +81,7 @@ double Website::getResponseTime(const string& pingResponse) const
 
 void Website::updateMetrics(int codeResponse)
 {
+    // Sends metric update : ping with error
     lock_guard<mutex> lock(mListLock);
     mPingList.push_back(Ping(time(0), codeResponse));
     for(auto ite = mMetricsMap.begin(); ite != mMetricsMap.end(); ite++)
@@ -83,6 +90,7 @@ void Website::updateMetrics(int codeResponse)
 
 void Website::updateMetrics(int codeResponse, double timer)
 {
+    // Sends metric update : successful ping
     lock_guard<mutex> lock(mListLock);
     mPingList.push_back(Ping(time(0), codeResponse, timer));
     for(auto ite = mMetricsMap.begin(); ite != mMetricsMap.end(); ite++)
@@ -91,6 +99,7 @@ void Website::updateMetrics(int codeResponse, double timer)
 
 Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 {
+    // Delete the old pings and returns the associated metrics. See deleteOldMetrics
     lock_guard<mutex> lock(mListLock);
     deleteOldMetrics(timeWindow, deleteOldPings);
     return mMetricsMap[timeWindow]->getMetrics();
@@ -98,17 +107,23 @@ Data Website::getMetrics(time_t timeWindow, bool deleteOldPings)
 
 void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
 {
+    // Metrics keeps in memory the position of the last ping from the last getMetrics in pingList.
+    // If this one is too old, this is the oldest to remove from the metric
+    // => we only have to iterate through a small and constant number of pings instead of the all list
     time_t currentTime = time(0);
     if(!mMetricsMap[timeWindow]->shouldInitialize())
     {
+        // The rolling iterator needs a safe initialization as iterator in an empty list are set to list.end()
         if(mPingList.size() != 0)
             mMetricsMap[timeWindow]->setInitialized();
         mMetricsMap[timeWindow]->setOldestPing(mPingList.begin());
     }
     auto oldestPing = mMetricsMap[timeWindow]->getOldestPing();
     checkOldestPing(oldestPing, timeWindow, currentTime);
+    // Iterate from the last check oldestPing to the oldestPing that is recent enough for this time window
     for(auto ite = oldestPing; ite != mPingList.end(); ite++)
     {
+        // Check if the ping is too old. If it is, remove it, else, we are up to date
         if(currentTime - ite->time > timeWindow)
         {
             mMetricsMap[timeWindow]->removePing(*ite);
@@ -125,7 +140,6 @@ void Website::deleteOldMetrics(time_t timeWindow, bool deleteOldPings)
         mPingList.erase(mPingList.begin(), oldestPing);
     }
     mMetricsMap[timeWindow]->updateOldMetrics(mPingList);
-
 }
 
 
