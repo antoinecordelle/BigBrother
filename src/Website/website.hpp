@@ -31,7 +31,7 @@ public:
 
     const std::string getName();
 
-    /// Method run : loops until stopped to send the ping requests and update the new metrics
+    /// Method run : runs to send the ping requests and update the new metrics
     void run();
     /// Method : requests to stop the website monitoring
     void stopRunning();

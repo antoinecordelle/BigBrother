@@ -34,9 +34,11 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
     input = initializationBaseWindow(LINES - 3 - 4, COLS, 3, 0, "");
     refresh();
 
+    // Each loop asks for one new website to monitor
     while(website != "0" && website != "default")
     {
         mvwprintw(input, currentLine, 1, "Website to monitor : ");
+        // User input requested : name of the website
         website = Utility::getCursesStr(input, currentLine++, 22);
         if(website.find(' ') != string::npos)
             mvwprintw(input, currentLine, 1, "Invalid URL");
@@ -45,6 +47,7 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
         else if(website != "0")
         {
             mvwprintw(input, currentLine, 1, "Ping interval in ms (between 50 and 5000) : ");
+            // User input requested : interval between each ping
             pingInterval = Utility::getCursesInt(input, currentLine++, 45);
             if(pingInterval <= 50 || pingInterval > 5000)
             {
@@ -70,6 +73,7 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
 
 WINDOW* Dashboard::initializationBaseWindow(int height, int width, int startY, int startX, std::string text, bool center, bool withBox, bool title)
 {
+    // Tool method to initialize windows
     WINDOW* win;
     win = newwin(height, width, startY, startX);
     if(withBox)
@@ -127,13 +131,16 @@ void Dashboard::run()
         switch(input)
         {
         case KEY_F(1):
+            // Exits the program if F1 is pressed
             mIsRunning = false;
             break;
         case KEY_UP:
+            // Update the focused website if Up is pressed
             shouldRefresh = true;
             focusWebsite(true);
             break;
         case KEY_DOWN:
+            // Update the focused website if Down is pressed
             shouldRefresh = true;
             focusWebsite(false);
             break;
@@ -254,6 +261,7 @@ void Dashboard::displayOneAlert(WINDOW* alertDisplay, const Alert& alert, int po
 
 void Dashboard::retrieveData(std::vector<std::map<time_t, Data>> data, std::vector<Alert> alerts, Dashboard::StatusMap statusMap)
 {
+    // Updates the data. Called by application
     std::lock_guard<std::mutex> lock(mDashboardLock);
     shouldRefresh = true;
     mAlerts = alerts;
@@ -266,6 +274,7 @@ void Dashboard::retrieveData(std::vector<std::map<time_t, Data>> data, std::vect
 
 void Dashboard::focusWebsite(bool next)
 {
+    // Changes the focused website. New website will have its data displayed
     std::lock_guard<std::mutex> lock(mDashboardLock);
     if(next)
     {

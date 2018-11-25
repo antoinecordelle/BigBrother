@@ -5,6 +5,11 @@
 #include <string>
 #include <iostream>
 
+/// Error when decoding the response of a ping
+/**
+ * @brief The ping commands should output 0 if OK, 1 or 2 if error.
+ * UndocumentedErrorCodeException manages the cases where the error is unexpected/different
+ */
 class UndocumentedErrorCodeException : public std::exception
 {
 public:
@@ -15,8 +20,7 @@ public:
 
     const char* what() const throw()
     {
-        // FIXME
-        return "Unexpected Error Code from ping"; //+ std::to_string(mCodeResponse))).c_str();
+        return (std::to_string(mCodeResponse)).c_str();
     }
 
 private:
