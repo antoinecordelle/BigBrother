@@ -159,7 +159,7 @@ void Dashboard::displayMenu(WINDOW* websitesMenu)
     std::lock_guard<std::mutex> lock(mDashboardLock);
     int line(1);
     wclear(websitesMenu);
-    mvwprintw(websitesMenu, 0, 0, "Websites list :");
+    websitesMenu = initializationBaseWindow(LINES/2 + 1, COLS/3, 0, 0, "Websites list :", false, false);
     for(auto websiteIte = mStatusMap.begin(); websiteIte != mStatusMap.end(); websiteIte++)
     {
         if(websiteIte->first == mFocusWebsite->first)
@@ -179,8 +179,7 @@ void Dashboard::displayDetails(WINDOW* websiteDetails)
     std::lock_guard<std::mutex> lock(mDashboardLock);
     wclear(websiteDetails);
     int position(1);
-    box(websiteDetails, 0 , 0);
-    mvwprintw(websiteDetails, 0, 1, (mFocusWebsite->first + " ").c_str());
+    websiteDetails = initializationBaseWindow(LINES/2 + 1, 2*COLS/3 + 1 , 0, COLS/3, (mFocusWebsite->first + " ").c_str(), false, true, true);
     for(auto website = mData.begin(); website != mData.end(); website++)
     {
         //Running through the sorted map of the website's data
@@ -215,8 +214,7 @@ void Dashboard::displayAlerts(WINDOW* alertDisplay)
 {
     std::lock_guard<std::mutex> lock(mDashboardLock);
     wclear(alertDisplay);
-    box(alertDisplay, 0 , 0);
-    mvwprintw(alertDisplay, 0, 1, "Alerts : ");
+    alertDisplay = initializationBaseWindow(LINES/2 - 2, COLS, LINES/2 +1, 0, "Alerts : ", false, true, true);
     int position(0);
     for(unsigned int i = max(0, (int)mAlerts.size() - 8); i != mAlerts.size(); i++)
     {
@@ -224,6 +222,7 @@ void Dashboard::displayAlerts(WINDOW* alertDisplay)
     }
     wrefresh(alertDisplay);
 }
+
 
 void Dashboard::displayOneAlert(WINDOW* alertDisplay, const Alert& alert, int position)
 {
@@ -243,6 +242,8 @@ void Dashboard::displayOneAlert(WINDOW* alertDisplay, const Alert& alert, int po
     }
     mvwprintw(alertDisplay, position + 1, 50, ("Availibility : " + to_string(alert.availibility)).c_str());
 }
+
+
 
 void Dashboard::retrieveData(std::vector<std::map<time_t, Data>> data, std::vector<Alert> alerts, Dashboard::StatusMap statusMap)
 {
