@@ -73,13 +73,13 @@ WINDOW* Dashboard::initializationBaseWindow(int height, int width, int startY, i
         box(win, 0 , 0);
         if(title)
             mvwprintw(win, 0, 1, text.c_str());
-        else
+        else if(!center)
             mvwprintw(win, 1, 1, text.c_str());
+        else
+            mvwprintw(win, 1, max(COLS/2 - 6, 0), text.c_str());
     }
-    else if(center)
-        mvwprintw(win, 1, max(COLS/2 - 6, 0), text.c_str());
     else
-        mvwprintw(win, 0, 1, text.c_str());
+        mvwprintw(win, 0, 0, text.c_str());
     wrefresh(win);
     return win;
 }

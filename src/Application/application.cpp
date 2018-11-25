@@ -12,7 +12,7 @@ using namespace std;
 Application::Application()
     :mAlertWindow(120)
     ,mTimeWindows({120, 600, 3600})
-    ,mCheckIntervals({5, 5, 10})
+    ,mCheckIntervals({10, 10, 60})
     ,mDashboard(mAlertWindow)
     ,mCycleCounter(0)
 {
