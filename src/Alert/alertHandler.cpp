@@ -25,6 +25,7 @@ void AlertHandler::initializeStatusMap(const std::vector<WebsitePtr>& websites)
 
 bool AlertHandler::shouldGetAlert(Data data)
 {
+    // If the website was up and is unavailable ( < 0.8) or if the website was down and now recovered
     return ((data.availability < 0.8 && mStatusMap[data.name]) || (!mStatusMap[data.name] && data.availability >= 0.8));
 }
 
