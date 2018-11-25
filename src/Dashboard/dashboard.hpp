@@ -17,7 +17,7 @@ public:
     using StatusMap = std::map<std::string, bool>;
 
 public:
-    Dashboard();
+    Dashboard(time_t alertWindow);
 
     std::vector<std::pair<std::string, int>> initializeWebsites();
     void run();
@@ -27,6 +27,7 @@ public:
 private:
     void displayMenu(WINDOW* websitesMenu);
     void displayDetails(WINDOW* websiteDetails);
+    void displayData(WINDOW* websiteDetails, int position, time_t timerWindow, Data data);
     void displayAlerts(WINDOW* alertDisplay);
     void displayOneAlert(WINDOW* alertDisplay, const Alert& alert, int position);
     WINDOW* initializationBaseWindow(int height, int width, int startY, int startX, std::string text, bool center = false, bool withBox = true, bool title = false);
@@ -35,10 +36,15 @@ private:
 private:
     std::atomic<bool> mIsRunning;
     std::atomic<bool> shouldRefresh;
+
     std::vector<std::map<time_t, Data>> mData;
-    std::vector<Alert> mAlerts;
+    std::vector<std::string> mWebsitePos;
     StatusMap mStatusMap;
     StatusMap::iterator mFocusWebsite;
+
+    std::vector<Alert> mAlerts;
+    time_t mAlertWindow;
+
     std::mutex mDashboardLock;
 };
 

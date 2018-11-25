@@ -4,7 +4,7 @@ using namespace std;
 
 Alert::Alert(Data data)
     :name(data.name)
-    ,availibility(data.availibility)
+    ,availibility(data.availability)
     ,timer(time(0))
 {
 }
@@ -25,14 +25,14 @@ void AlertHandler::initializeStatusMap(const std::vector<WebsitePtr>& websites)
 
 bool AlertHandler::shouldGetAlert(Data data)
 {
-    if((data.availibility < 0.8 && mStatusMap[data.name]) || (mStatusMap[data.name] == false && data.availibility >= 0.8))
+    if((data.availability < 0.8 && mStatusMap[data.name]) || (mStatusMap[data.name] == false && data.availability >= 0.8))
         return true;
     return false;
 }
 
 Alert AlertHandler::getAlert(Data data)
 {
-    if(data.availibility < 0.8)
+    if(data.availability < 0.8)
     {
         mStatusMap[data.name] = false;
         return Alert(data);

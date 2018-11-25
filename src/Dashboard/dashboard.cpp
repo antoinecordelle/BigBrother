@@ -5,7 +5,8 @@
 
 using namespace std;
 
-Dashboard::Dashboard()
+Dashboard::Dashboard(time_t alertWindow)
+    :mAlertWindow(alertWindow)
 {
 
 }
@@ -60,6 +61,7 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
     return websites;
 }
 
+
 WINDOW* Dashboard::initializationBaseWindow(int height, int width, int startY, int startX, std::string text, bool center, bool withBox, bool title)
 {
     WINDOW* win;
@@ -94,6 +96,7 @@ void Dashboard::run()
     WINDOW* alertDisplay;
 
     mIsRunning = true;
+    mFocusWebsite = mStatusMap.begin();
     initscr();
     curs_set(0);
     clear();
@@ -101,9 +104,9 @@ void Dashboard::run()
     noecho();
     keypad(stdscr, TRUE);
     footer = initializationBaseWindow(1, COLS, LINES - 1, 0, "Press F1 to leave. Press the up and down arrows to navigate through websites", false, false, false);
-    websitesMenu = initializationBaseWindow(LINES/2, COLS/3, 0, 0, "Websites list :", false, false);
-    websiteDetails = initializationBaseWindow(LINES/2, 2*COLS/3 + 1 , 0, COLS/3, "Website details :", false, true, true);
-    alertDisplay = initializationBaseWindow(LINES/2 - 1, COLS, LINES/2, 0, "Alerts : ", false, true, true);
+    websitesMenu = initializationBaseWindow(LINES/2 + 1, COLS/3, 0, 0, "Websites list :", false, false);
+    websiteDetails = initializationBaseWindow(LINES/2 + 1, 2*COLS/3 + 1 , 0, COLS/3, "Website details :", false, true, true);
+    alertDisplay = initializationBaseWindow(LINES/2 - 2, COLS, LINES/2 +1, 0, "Alerts : ", false, true, true);
     int input;
     int counter;
     timeout(1000);
@@ -129,7 +132,7 @@ void Dashboard::run()
         if(shouldRefresh)
         {
             shouldRefresh = false;
-            //displayDetails(websiteDetails);
+            displayDetails(websiteDetails);
             displayAlerts(alertDisplay);
             displayMenu(websitesMenu);
         }
@@ -148,7 +151,7 @@ void Dashboard::displayMenu(WINDOW* websitesMenu)
     std::lock_guard<std::mutex> lock(mDashboardLock);
     int line(1);
     wclear(websitesMenu);
-    websitesMenu = initializationBaseWindow(LINES/2, COLS/3, 0, 0, "Websites list :", false, false);
+    mvwprintw(websitesMenu, 0, 0, "Websites list :");
     for(auto websiteIte = mStatusMap.begin(); websiteIte != mStatusMap.end(); websiteIte++)
     {
         if(websiteIte->first == mFocusWebsite->first)
@@ -167,16 +170,45 @@ void Dashboard::displayDetails(WINDOW* websiteDetails)
 {
     std::lock_guard<std::mutex> lock(mDashboardLock);
     wclear(websiteDetails);
-    websiteDetails = initializationBaseWindow(LINES/2, 2*COLS/3 + 1 , 0, COLS/3, "Website details :", false, true, true);
-
+    int position(1);
+    box(websiteDetails, 0 , 0);
+    mvwprintw(websiteDetails, 0, 1, (mFocusWebsite->first + " ").c_str());
+    for(auto website = mData.begin(); website != mData.end(); website++)
+    {
+        //Running through the sorted map of the website's data
+        for(auto data = website->begin(); data != website->end(); data++)
+        {
+            if((data->second).name == mFocusWebsite->first && data->first != mAlertWindow)
+            {
+                displayData(websiteDetails, position, data->first, data->second);
+                position += 6;
+            }
+        }
+    }
     wrefresh(websiteDetails);
+}
+
+void Dashboard::displayData(WINDOW* websiteDetails, int position, time_t timerWindow, Data data)
+{
+    mvwprintw(websiteDetails, position, 2, ("Last " + to_string(timerWindow/60) + " minutes : ").c_str());
+    mvwprintw(websiteDetails, position + 1, 2, ("Availability : " + to_string(data.availability)).c_str());
+    mvwprintw(websiteDetails, position + 2, 2, "Response time : (min/avg/max)");
+    if(data.pingCount - data.hostUnreachableCount != 0)
+        mvwprintw(websiteDetails, position + 3, 2, ("     " + to_string(data.minTime) + "ms / " + to_string(data.avgTime) + "ms / " + to_string(data.maxTime) + "ms").c_str());
+    else
+        mvwprintw(websiteDetails, position + 3, 2, "     NA / NA / NA");
+    mvwprintw(websiteDetails, position + 4, 2,
+              ("Total : " + to_string(data.pingCount) +
+               " / Code 200 OK : " + to_string(data.pingCount - data.hostUnreachableCount) +
+               " / Ping Error : " + to_string(data.hostUnreachableCount)).c_str());
 }
 
 void Dashboard::displayAlerts(WINDOW* alertDisplay)
 {
     std::lock_guard<std::mutex> lock(mDashboardLock);
     wclear(alertDisplay);
-    alertDisplay = initializationBaseWindow(LINES/2 - 1, COLS, LINES/2, 0, "Alerts : ", false, true, true);
+    box(alertDisplay, 0 , 0);
+    mvwprintw(alertDisplay, 0, 1, "Alerts : ");
     for(unsigned int i = 0; i != mAlerts.size(); i++)
     {
         displayOneAlert(alertDisplay, mAlerts[i], i);
@@ -202,27 +234,6 @@ void Dashboard::displayOneAlert(WINDOW* alertDisplay, const Alert& alert, int po
     }
     mvwprintw(alertDisplay, position + 1, 50, ("Availibility : " + to_string(alert.availibility)).c_str());
 }
-
-/*
-void Dashboard::displayData()
-{
-    clear();
-    Data data;
-    for(auto ite = mData.begin(); ite != mData.end(); ite++)
-    {
-        for(auto dataIte = ite->begin(); dataIte != ite->end(); dataIte ++)
-        {
-            data = dataIte->second;
-            printw(("Past " + to_string(dataIte->first) + "sec :  " + data.name + " : " + to_string(data.avgTime) + "\n").c_str());
-        }
-    }
-    for(auto ite = mAlerts.begin(); ite != mAlerts.end(); ite++)
-    {
-        printw(("Alert : " + ite->name + " has availibility : " + to_string(ite->availibility) + " at time : \n").c_str());
-    }
-    refresh();
-    shouldRefresh = false;
-}*/
 
 void Dashboard::retrieveData(std::vector<std::map<time_t, Data>> data, std::vector<Alert> alerts, Dashboard::StatusMap statusMap)
 {

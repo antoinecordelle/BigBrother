@@ -10,9 +10,10 @@
 using namespace std;
 
 Application::Application()
-    :mAlertWindow(10)
-    ,mTimeWindows({10, 60})
-    ,mCheckIntervals({5, 10})
+    :mAlertWindow(120)
+    ,mTimeWindows({120, 600, 3600})
+    ,mCheckIntervals({5, 5, 10})
+    ,mDashboard(mAlertWindow)
     ,mCycleCounter(0)
 {
 }
@@ -116,11 +117,11 @@ void Application::checkWebsites()
 
 void Application::checkAlerts(Data data)
 {
-    mStatusMap = mAlertHandler.getStatusMap();
     if(mAlertHandler.shouldGetAlert(data))
     {
         mAlerts.push_back(mAlertHandler.getAlert(data));
     }
+    mStatusMap = mAlertHandler.getStatusMap();
 }
 
 void Application::getMetrics(int websitePos, time_t timeWindow)

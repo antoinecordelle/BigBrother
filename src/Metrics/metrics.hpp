@@ -21,7 +21,7 @@ struct Data {
     double maxTime = 0.f;
     double minTime = 1.79769e+308;
     double avgTime = 0.f;
-    double availibility = 1.f;
+    double availability = 1.f;
     std::string name;
 };
 

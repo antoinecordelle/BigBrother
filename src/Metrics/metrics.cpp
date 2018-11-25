@@ -90,7 +90,7 @@ void Metrics::updateOldMetrics(const std::list<Ping>& pingList)
     if(mData.pingCount != 0)
     {
         mData.avgTime = mData.sumTime/((double)mData.pingCount);
-        mData.availibility = 1.f - (double)mData.hostUnreachableCount/((double)mData.pingCount);
+        mData.availability = 1.f - (double)mData.hostUnreachableCount/((double)mData.pingCount);
     }
 }
 
