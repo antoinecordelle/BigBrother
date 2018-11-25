@@ -19,7 +19,7 @@ int Utility::getCursesInt(WINDOW* win, int line, int col)
     {
         cerr << "Invalid argument: " << error.what() << '\n';
     }
-    return 0;
+    return 250;
 }
 
 

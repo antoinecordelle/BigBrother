@@ -28,6 +28,7 @@ public:
     void initializeStatusMap(const std::vector<WebsitePtr>& websites);
     bool shouldGetAlert(Data data);
     Alert getAlert(Data data);
+    const StatusMap& getStatusMap();
 
 private:
     StatusMap mStatusMap;

@@ -44,3 +44,10 @@ Alert AlertHandler::getAlert(Data data)
     }
 }
 
+const AlertHandler::StatusMap& AlertHandler::getStatusMap()
+{
+    return mStatusMap;
+}
+
+
+

@@ -12,6 +12,7 @@ class Application
 {
 public:
     using WebsitePtr = std::unique_ptr<Website>;
+    using StatusMap = std::map<std::string, bool>;
 
 public:
     Application();
@@ -36,6 +37,7 @@ private:
     AlertHandler mAlertHandler;
     std::vector<Alert> mAlerts;
     time_t mAlertWindow;
+    StatusMap mStatusMap;
 
     std::vector<std::map<time_t, Data>> mData;
     std::vector<time_t> mTimeWindows;

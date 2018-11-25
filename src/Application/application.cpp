@@ -87,7 +87,7 @@ void Application::monitor()
             mCycleCounter++;
             timer = system_clock::now();
             checkWebsites();
-            mDashboard.retrieveData(mData, mAlerts);
+            mDashboard.retrieveData(mData, mAlerts, mStatusMap);
             std::this_thread::sleep_for(milliseconds(1000)- duration_cast<milliseconds>(system_clock::now() - timer));
         }
     }
@@ -114,7 +114,10 @@ void Application::checkWebsites()
 void Application::checkAlerts(Data data)
 {
     if(mAlertHandler.shouldGetAlert(data))
+    {
         mAlerts.push_back(mAlertHandler.getAlert(data));
+        mStatusMap = mAlertHandler.getStatusMap();
+    }
 }
 
 void Application::getMetrics(int websitePos, time_t timeWindow)

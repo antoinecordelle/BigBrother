@@ -13,22 +13,29 @@
 class Dashboard
 {
 public:
+    using StatusMap = std::map<std::string, bool>;
+
+public:
     Dashboard();
 
     std::vector<std::pair<std::string, int>> initializeWebsites();
     void run();
     bool isRunning();
-    void retrieveData(std::vector<std::map<time_t, Data>> data, std::vector<Alert> alerts);
+    void retrieveData(std::vector<std::map<time_t, Data>> data, std::vector<Alert> alerts, StatusMap statusMap);
 
 private:
-    void displayData();
-    WINDOW* initializationBaseWindow(int height, int width, int startY, int startX, std::string text, bool center = false);
+    void displayMenu(WINDOW* websitesMenu);
+    void displayDetails(WINDOW* websiteDetails);
+    void displayAlerts(WINDOW* alertDisplay);
+    WINDOW* initializationBaseWindow(int height, int width, int startY, int startX, std::string text, bool center = false, bool withBox = true, bool title = false);
 
 private:
     std::atomic<bool> mIsRunning;
     std::atomic<bool> shouldRefresh;
     std::vector<std::map<time_t, Data>> mData;
     std::vector<Alert> mAlerts;
+    StatusMap mStatusMap;
+    StatusMap::iterator mFocusWebsite;
 };
 
 #endif // DASHBOARD_HPP
