@@ -5,7 +5,8 @@
 #include <string>
 #include <atomic>
 #include <map>
-#include "ncurses.h"
+#include <mutex>
+#include <ncurses.h>
 
 #include "../Alert/alertHandler.hpp"
 #include "../Metrics/metrics.hpp"
@@ -28,6 +29,7 @@ private:
     void displayDetails(WINDOW* websiteDetails);
     void displayAlerts(WINDOW* alertDisplay);
     WINDOW* initializationBaseWindow(int height, int width, int startY, int startX, std::string text, bool center = false, bool withBox = true, bool title = false);
+    void focusWebsite(bool next);
 
 private:
     std::atomic<bool> mIsRunning;
@@ -36,6 +38,7 @@ private:
     std::vector<Alert> mAlerts;
     StatusMap mStatusMap;
     StatusMap::iterator mFocusWebsite;
+    std::mutex mDashboardLock;
 };
 
 #endif // DASHBOARD_HPP

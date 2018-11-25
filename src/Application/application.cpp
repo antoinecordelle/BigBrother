@@ -12,7 +12,7 @@ using namespace std;
 Application::Application()
     :mAlertWindow(10)
     ,mTimeWindows({10, 60})
-    ,mCheckIntervals({1, 10})
+    ,mCheckIntervals({5, 10})
     ,mCycleCounter(0)
 {
 }
@@ -29,12 +29,15 @@ void Application::initialize()
             addWebsite(ite->first, ite->second);
     }
     mAlertHandler.initializeStatusMap(mWebsites);
+    mStatusMap = mAlertHandler.getStatusMap();
+    mDashboard.retrieveData(mData, mAlerts, mStatusMap);
 }
 
 void Application::loadDefaultWebsites()
 {
     addWebsite("google.com", 250);
     addWebsite("datadoghq.com", 250);
+    addWebsite("edzedeaz", 250);
 }
 
 void Application::addWebsite(string url, int pingInterval)
@@ -113,10 +116,10 @@ void Application::checkWebsites()
 
 void Application::checkAlerts(Data data)
 {
+    mStatusMap = mAlertHandler.getStatusMap();
     if(mAlertHandler.shouldGetAlert(data))
     {
         mAlerts.push_back(mAlertHandler.getAlert(data));
-        mStatusMap = mAlertHandler.getStatusMap();
     }
 }
 

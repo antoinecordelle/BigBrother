@@ -19,6 +19,7 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
     keypad(stdscr, TRUE);
 
     vector<pair<string, int>> websites;
+    mFocusWebsite = mStatusMap.begin();
     string website;
     int pingInterval;
     int currentLine(1);
@@ -92,7 +93,6 @@ void Dashboard::run()
     WINDOW* alertDisplay;
 
     mIsRunning = true;
-    mFocusWebsite = mStatusMap.begin();
     initscr();
     clear();
     refresh();
@@ -102,10 +102,15 @@ void Dashboard::run()
     websitesMenu = initializationBaseWindow(LINES/2, COLS/3, 0, 0, "Websites list :", false, false);
     websiteDetails = initializationBaseWindow(LINES/2, 2*COLS/3 + 1 , 0, COLS/3, "Website details :", false, true, true);
     alertDisplay = initializationBaseWindow(LINES/2 - 1, COLS, LINES/2, 0, "Alerts : ", false, true, true);
-    timeout(1000);
     int input;
+    int counter;
+    timeout(1000);
     while(isRunning())
     {
+        mvwprintw(alertDisplay, 1, 0, to_string(counter++).c_str());
+        mvwprintw(websiteDetails, 1, 0, to_string(mStatusMap.size()).c_str());
+        wrefresh(websiteDetails);
+        wrefresh(alertDisplay);
         input = getch();
         switch(input)
         {
@@ -114,20 +119,21 @@ void Dashboard::run()
             break;
         case KEY_UP:
             shouldRefresh = true;
-            if(++mFocusWebsite == mStatusMap.end())
-                mFocusWebsite--;
+            focusWebsite(true);
             break;
         case KEY_DOWN:
             shouldRefresh = true;
-            if(mFocusWebsite != mStatusMap.begin())
-                mFocusWebsite--;
+            focusWebsite(false);
+            break;
+        default:
             break;
         }
         if(shouldRefresh)
         {
+            shouldRefresh = false;
             displayMenu(websitesMenu);
-            displayDetails(websiteDetails);
-            displayAlerts(alertDisplay);
+            //displayDetails(websiteDetails);
+            //displayAlerts(alertDisplay);
         }
     }
 
@@ -141,6 +147,7 @@ void Dashboard::run()
 
 void Dashboard::displayMenu(WINDOW* websitesMenu)
 {
+    std::lock_guard<std::mutex> lock(mDashboardLock);
     int line(1);
     wclear(websitesMenu);
     websitesMenu = initializationBaseWindow(LINES/2, COLS/3, 0, 0, "Websites list :", false, false);
@@ -148,6 +155,11 @@ void Dashboard::displayMenu(WINDOW* websitesMenu)
     {
         if(websiteIte->first == mFocusWebsite->first)
             mvwprintw(websitesMenu, line, 0, "+");
+        if(websiteIte->second == true)
+            mvwprintw(websitesMenu, line, 2, "UP");
+        else
+            mvwprintw(websitesMenu, line, 2, "DO");
+        mvwprintw(websitesMenu, line++, 5, (websiteIte->first).c_str());
     }
 
     wrefresh(websitesMenu);
@@ -155,6 +167,7 @@ void Dashboard::displayMenu(WINDOW* websitesMenu)
 
 void Dashboard::displayDetails(WINDOW* websiteDetails)
 {
+    std::lock_guard<std::mutex> lock(mDashboardLock);
     wclear(websiteDetails);
     websiteDetails = initializationBaseWindow(LINES/2, 2*COLS/3 + 1 , 0, COLS/3, "Website details :", false, true, true);
 
@@ -163,6 +176,7 @@ void Dashboard::displayDetails(WINDOW* websiteDetails)
 
 void Dashboard::displayAlerts(WINDOW* alertDisplay)
 {
+    std::lock_guard<std::mutex> lock(mDashboardLock);
     wclear(alertDisplay);
     alertDisplay = initializationBaseWindow(LINES/2 - 1, COLS, LINES/2, 0, "Alerts : ", false, true, true);
 
@@ -191,9 +205,32 @@ void Dashboard::displayData()
 
 void Dashboard::retrieveData(std::vector<std::map<time_t, Data>> data, std::vector<Alert> alerts, Dashboard::StatusMap statusMap)
 {
+    std::lock_guard<std::mutex> lock(mDashboardLock);
     shouldRefresh = true;
     mAlerts = alerts;
     mData = data;
-    mStatusMap = statusMap;
+    for(auto ite = statusMap.begin(); ite != statusMap.end(); ite++)
+    {
+        mStatusMap[ite->first] = ite->second;
+    }
 }
+
+void Dashboard::focusWebsite(bool next)
+{
+    std::lock_guard<std::mutex> lock(mDashboardLock);
+    if(next)
+    {
+        if(mFocusWebsite != mStatusMap.begin())
+            mFocusWebsite--;
+    }
+    else
+        if(++mFocusWebsite == mStatusMap.end())
+            mFocusWebsite--;
+
+}
+
+
+
+
+
 
