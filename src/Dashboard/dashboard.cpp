@@ -44,10 +44,13 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
             websites.push_back(pair<string, int>("default", 0));
         else if(website != "0")
         {
-            mvwprintw(input, currentLine, 1, "Ping interval in ms : ");
-            pingInterval = Utility::getCursesInt(input, currentLine++, 23);
+            mvwprintw(input, currentLine, 1, "Ping interval in ms (between 50 and 5000) : ");
+            pingInterval = Utility::getCursesInt(input, currentLine++, 45);
             if(pingInterval <= 50 || pingInterval > 5000)
+            {
+                mvwprintw(input, currentLine++, 1, "Ping Interval set back to 250ms ");
                 pingInterval = 250;
+            }
             websites.push_back(pair<string, int>(website, pingInterval));
         }
         if(++currentLine + 1 >= LINES - 7)
@@ -179,8 +182,10 @@ void Dashboard::displayDetails(WINDOW* websiteDetails)
     std::lock_guard<std::mutex> lock(mDashboardLock);
     wclear(websiteDetails);
     int position(1);
+    bool displayed(false);
+    auto website(mData.begin());
     websiteDetails = initializationBaseWindow(LINES/2 + 1, 2*COLS/3 + 1 , 0, COLS/3, (mFocusWebsite->first + " ").c_str(), false, true, true);
-    for(auto website = mData.begin(); website != mData.end(); website++)
+    while(website != mData.end() && !displayed)
     {
         //Running through the sorted map of the website's data
         for(auto data = website->begin(); data != website->end(); data++)
@@ -189,8 +194,10 @@ void Dashboard::displayDetails(WINDOW* websiteDetails)
             {
                 displayData(websiteDetails, position, data->first, data->second);
                 position += 6;
+                displayed = true;
             }
         }
+        website++;
     }
     wrefresh(websiteDetails);
 }

@@ -25,9 +25,7 @@ void AlertHandler::initializeStatusMap(const std::vector<WebsitePtr>& websites)
 
 bool AlertHandler::shouldGetAlert(Data data)
 {
-    if((data.availability < 0.8 && mStatusMap[data.name]) || (mStatusMap[data.name] == false && data.availability >= 0.8))
-        return true;
-    return false;
+    return ((data.availability < 0.8 && mStatusMap[data.name]) || (!mStatusMap[data.name] && data.availability >= 0.8));
 }
 
 Alert AlertHandler::getAlert(Data data)
@@ -37,11 +35,8 @@ Alert AlertHandler::getAlert(Data data)
         mStatusMap[data.name] = false;
         return Alert(data);
     }
-    else
-    {
-        mStatusMap[data.name] = true;
-        return Alert(data);
-    }
+    mStatusMap[data.name] = true;
+    return Alert(data);
 }
 
 const AlertHandler::StatusMap& AlertHandler::getStatusMap()
