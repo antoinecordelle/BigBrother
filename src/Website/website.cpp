@@ -42,22 +42,25 @@ void Website::processPing(std::string pingResponse)
 {
     try
     {
-        // Code response 0 : successful ping
-        int codeResponse = getResponseCode(pingResponse);
-        if(codeResponse == 0)
+        if(pingResponse.size() > 0)
         {
-            double time(getResponseTime(pingResponse));
-            updateMetrics(codeResponse, time);
+            // Code response 0 : successful ping
+            int codeResponse = getResponseCode(pingResponse);
+            if(codeResponse == 0)
+            {
+                double time(getResponseTime(pingResponse));
+                updateMetrics(codeResponse, time);
+            }
+            // Code response 1 or 2 : ping error
+            else
+                updateMetrics(codeResponse);
         }
-        // Code response 1 or 2 : ping error
-        else
-            updateMetrics(codeResponse);
     } catch (const invalid_argument& error)
     {
         cerr << "Dropping ping : Invalid argument: " << error.what() << '\n';
     } catch (const UndocumentedErrorCodeException& error)
     {
-        // Code response different from 1/2/3 : unexpected response
+        // Code response different : unexpected response
         cerr << "Dropping ping : Unexpected Error Code : " << error.what() << '\n';
     }
 }
@@ -65,17 +68,26 @@ void Website::processPing(std::string pingResponse)
 int Website::getResponseCode(const string& pingResponse) const
 {
     // PingResponse ends by the code response : "echo $?" in the ping command
-    int codeResponse = stoi(pingResponse.substr(pingResponse.size()-3));
-    if(codeResponse != 0 && codeResponse != 1 && codeResponse != 2)
+
+    int codeResponse = stoi(pingResponse.substr(pingResponse.size() - 2));
+    if(codeResponse != 0 && codeResponse != 1 && codeResponse != 2 && codeResponse != 68)
         throw UndocumentedErrorCodeException(codeResponse);
     return codeResponse;
 }
 
 double Website::getResponseTime(const string& pingResponse) const
 {
+    // Linux response
+    int pos(7);
     size_t positionStats = pingResponse.find("mdev = ");
+    if(positionStats == string::npos)
+    {
+	// MacOS response
+        positionStats = pingResponse.find("stddev = ");
+        pos = 9;
+    }
     size_t positionEndStats = pingResponse.find('/', positionStats);
-    double time = stod(pingResponse.substr(positionStats + 7, positionEndStats - positionStats - 7));
+    double time = stod(pingResponse.substr(positionStats + pos, positionEndStats - positionStats - pos));
     return time;
 }
 
@@ -91,6 +103,7 @@ void Website::updateMetrics(int codeResponse)
 void Website::updateMetrics(int codeResponse, double timer)
 {
     // Sends metric update : successful ping
+    cout << codeResponse << "  " << timer << endl;
     lock_guard<mutex> lock(mListLock);
     mPingList.push_back(Ping(time(0), codeResponse, timer));
     for(auto ite = mMetricsMap.begin(); ite != mMetricsMap.end(); ite++)

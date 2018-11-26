@@ -1,6 +1,8 @@
 #include "metrics.hpp"
 
+#include <string>
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
