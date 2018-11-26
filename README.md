@@ -1,6 +1,6 @@
 # About
 
-BigBrother is console program written in C++ to monitor performance and availability of websites proposed by Datadog.
+BigBrother is a console program written in C++ to monitor performance and availability of websites proposed by Datadog.
 
 ![preview](https://github.com/antoinecordelle/BigBrother/blob/master/screen.png)
 
@@ -112,7 +112,7 @@ Most of the documentation is located in the header files.
 
 ## Dependencies
 
-This program uses : \n
+This program uses :
 Ncurses for the console interface : C library the one used in programs like htop or vim for instance
 
 Google Test : C++ test library
