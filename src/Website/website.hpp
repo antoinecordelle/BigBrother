@@ -75,6 +75,7 @@ private:
 
 private:
     const std::string mName;
+	/// LinkedList of the pings stored, sorted from the oldest to the newest ping
     std::list<Ping> mPingList;
     /// Map of metrics : a metric for each timeWindow
     std::map<time_t, std::unique_ptr<Metrics>> mMetricsMap;

@@ -112,7 +112,7 @@ Most of the documentation is located in the header files.
 
 ## Dependencies
 
-This program uses :
+This program uses : \n
 Ncurses for the console interface : C library the one used in programs like htop or vim for instance
 
 Google Test : C++ test library
@@ -184,7 +184,6 @@ Updated whenever a ping arrives.
 
 
 ## File structure
-
 ```
 . 
 ├── /src                    
@@ -198,7 +197,6 @@ Updated whenever a ping arrives.
 │   ├─── /Website
 │   ├─ CMakeLists.txt           
 │   └─ main.cpp   
-│
 ├── /doc  
 │   ├─ CMakeLists.txt      
 │   └─ Doxyfile.in
@@ -212,7 +210,7 @@ Updated whenever a ping arrives.
 
 ### Processing improvements :
 
-**Other metrics to add :** Some interesting metrics can be added, such as a more detailed error tracking, or the 99th percentile which could be a really interesting metrics (allowing to know if a really high maxTime ping is an exception or not). 
+**Other metrics to add :** Some interesting metrics can be added, such as a more detailed error tracking, or the 99th percentile which could be a really interesting metrics (allowing to know if a really high maxTime ping is an exception or not for example). 
 
 **Program Configuration :** Right now, the timeWindow and refreshing times are coded in the application. Ideally, a configuration file should be added to the program to allow the user to change more easily these times.
 
