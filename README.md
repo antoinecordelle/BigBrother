@@ -11,10 +11,11 @@ BigBrother is console program written in C++ to monitor performance and availabi
   * [Installation](#install)
   * [Run](#run)
   * [Documentation](#documentation)
+  * [Dependencies](#dependencies)
 * [Architecture](#architecture)
   * [Overview](#overview)
-  * [Design choices](#design-choices)
   * [Structure](#structure)
+  * [Code Structure](#code-structure)
 * [Possible improvements](#possible-improvements)
 
 
@@ -118,9 +119,30 @@ To access the documentation : Open ./doc/index.html
 Most of the documentation is located in the header files.
 
 
-#Architecture
+## Dependencies
+
+This program uses :
+Ncurses for the console interface : C library the one used in programs like htop or vim for instance
+
+Google Test : C++ test library
+
+Doxygen
+
+
+# Architecture
 
 ## Overview
+
+This project is based around three parts :
+
+- The Processing Part : back-end of the app in charge of sending the pings, collecting and processing the metrics (Website, Metrics, AlertHandler)
+
+- The Dashboard : user console interface, displaying the metrics of the different websites
+
+- The Application : this class is in charge of launching the differents websites (one thread per website) and the dashboard. This class handles the communication between the data processing, the alert handler and the dashboard.
+
+This architecture separates clearly the data processing and the user interface, everything communicating through the application class.
+
 
 ## Structure
 
