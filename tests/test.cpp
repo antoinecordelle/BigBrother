@@ -1,9 +1,10 @@
 #include "Metrics/metrics.hpp"
 #include "Alert/alertHandler.hpp"
-#include "Application/application.hpp"
+#include "Website/website.hpp"
 
 #include <gtest/gtest.h>
 #include <list>
+#include <memory>
 
 using namespace std;
 
@@ -14,8 +15,8 @@ TEST ( TestAlertLogic, AlertLogic1)
     data.name = "test";
     data.availability = 0.1;
     AlertHandler alertHandler;
-    vector<Application::WebsitePtr> websites;
-    websites.push_back(Application::WebsitePtr(new Website("test")));
+    vector<std::unique_ptr<Website>> websites;
+    websites.push_back(std::unique_ptr<Website>(new Website("test")));
     alertHandler.initializeStatusMap(websites);
 
     EXPECT_EQ(true, alertHandler.shouldGetAlert(data));

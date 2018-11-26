@@ -5,6 +5,7 @@
 #include <list>
 #include <mutex>
 #include <atomic>
+#include <string>
 
 /// Struct representing a ping. Used to store pings in PingList
 struct Ping {

@@ -40,7 +40,7 @@ vector<pair<string, int>> Dashboard::initializeWebsites()
         mvwprintw(input, currentLine, 1, "Website to monitor : ");
         // User input requested : name of the website
         website = Utility::getCursesStr(input, currentLine++, 22);
-        if(website.find(' ') != string::npos)
+        if(website.find(' ') != string::npos || website.size() == 0)
             mvwprintw(input, currentLine, 1, "Invalid URL");
         else if(website == "default")
             websites.push_back(pair<string, int>("default", 0));
