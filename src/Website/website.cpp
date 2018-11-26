@@ -103,7 +103,6 @@ void Website::updateMetrics(int codeResponse)
 void Website::updateMetrics(int codeResponse, double timer)
 {
     // Sends metric update : successful ping
-    cout << codeResponse << "  " << timer << endl;
     lock_guard<mutex> lock(mListLock);
     mPingList.push_back(Ping(time(0), codeResponse, timer));
     for(auto ite = mMetricsMap.begin(); ite != mMetricsMap.end(); ite++)

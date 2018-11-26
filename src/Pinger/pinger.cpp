@@ -35,7 +35,7 @@ string Pinger::ping()
             if ( fgets (buffer , 100 , pingRequest) == NULL ) break;
             response += buffer;
         }
-        fclose (pingRequest);
+        pclose (pingRequest);
     }
     return response;
 }
